@@ -1,6 +1,5 @@
 package uni.freiburg.sparqljoin.service;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,26 +22,15 @@ public class DataLoaderServiceTest {
     @InjectMocks
     DataLoaderService dataLoaderService;
 
-    @Before
-    public void setup() {
-        initMocks();
-    }
-
     @Test
     public void testLoadDataset() {
-        Database expected = new Database(initTables(), initDictionaries());
-        Database actual = dataLoaderService.load(DATASET_PATH);
+        Database<Integer, Integer> expected = new Database<>(initTables());
+        Database<Integer, Integer> actual = dataLoaderService.load(DATASET_PATH);
 
         Assert.assertEquals("Some table is missing", expected.tables().size(), actual.tables().size());
 
-        actual.tables().forEach((key, actualTable) -> {
-            Assert.assertEquals(String.format("For key '%s' tables are not equal", key),
-                    expected.tables().get(key).list(), actualTable.list());
-        });
-    }
-
-    private void initMocks() {
-        Whitebox.setInternalState(dataLoaderService, "dictionaries", initDictionaries());
+        actual.tables().forEach((key, actualTable) -> Assert.assertEquals(String.format("For key '%s' tables are not equal", key),
+                expected.tables().get(key).list(), actualTable.list()));
     }
 
     private HashMap<String, Dictionary> initDictionaries() {
@@ -62,6 +50,7 @@ public class DataLoaderServiceTest {
     }
 
     private HashMap<String, Table<Integer, Integer>> initTables() {
+        HashMap<String, Dictionary> dictionaries = initDictionaries();
         HashMap<String, Table<Integer, Integer>> tables = new HashMap<>();
 
         Table<Integer, Integer> parentCountryTable = new Table<>("gn:parentCountry");
@@ -79,16 +68,18 @@ public class DataLoaderServiceTest {
         userIdTable.insert(new Item<>(2, 1936247));
         tables.put("wsdbm:userId", userIdTable);
 
-        Table<Integer, Integer> emailTable = new Table<>("sorg:email");
+        Table<Integer, Integer> emailTable = new Table<>("sorg:email", dictionaries.get("sorg:email"));
         emailTable.insert(new Item<>(0, 1));
         tables.put("sorg:email", emailTable);
 
-        Table<Integer, Integer> givenNameTable = new Table<>("foaf:givenName");
+        Table<Integer, Integer> givenNameTable =
+                new Table<>("foaf:givenName", dictionaries.get("foaf:givenName"));
         givenNameTable.insert(new Item<>(0, 1));
         givenNameTable.insert(new Item<>(2, 1));
         tables.put("foaf:givenName", givenNameTable);
 
-        Table<Integer, Integer> familyNameTable = new Table<>("foaf:familyName");
+        Table<Integer, Integer> familyNameTable =
+                new Table<>("foaf:familyName", dictionaries.get("foaf:familyName"));
         familyNameTable.insert(new Item<>(2, 1));
         tables.put("foaf:familyName", familyNameTable);
         return tables;

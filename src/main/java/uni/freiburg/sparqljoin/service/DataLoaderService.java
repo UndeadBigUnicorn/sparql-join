@@ -23,16 +23,14 @@ public class DataLoaderService {
     private static final Logger LOG = LoggerFactory.getLogger(DataLoaderService.class);
 
     private HashMap<String, Table<Integer, Integer>> tables;
-    private HashMap<String, Dictionary> dictionaries;
 
     /**
      * Parse the dataset and load data into database structure
      * @param path  to the dataset to read
      */
-    public Database load(String path) {
+    public Database<Integer, Integer> load(String path) {
         LOG.debug("Loading dataset...");
         tables = new HashMap<>();
-        dictionaries = new HashMap<>();
         try (Stream<String> lines = Files.lines(Path.of(path))) {
             for (String line : (Iterable<String>) lines::iterator) {
                 Triplet triplet = parseTriplet(line);
@@ -41,7 +39,7 @@ public class DataLoaderService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new Database(tables, dictionaries);
+        return new Database<>(tables);
     }
 
     /**
@@ -69,13 +67,8 @@ public class DataLoaderService {
         if (!tables.containsKey(triplet.property())) {
             tables.put(triplet.property(), new Table<>(triplet.property()));
         }
-        Table table = tables.get(triplet.property());
-
-        // create new dictionary
-        if (!dictionaries.containsKey(triplet.property())) {
-            dictionaries.put(triplet.property(), new Dictionary());
-        }
-        Dictionary dict = dictionaries.get(triplet.property());
+        Table<Integer, Integer> table = tables.get(triplet.property());
+        Dictionary dict = table.getDictionary();
 
         int subjectKey = extractKey(triplet.subject(), dict);
         int objectKey = extractKey(triplet.object(), dict);
@@ -94,11 +87,6 @@ public class DataLoaderService {
             case "string" ->
                     dict.put(value);
             case "int" -> Integer.parseInt(value);
-            // TODO:
-            //  check if it is really needed to transform objects 'wsdbm:City92' into unique integer
-            //  or we could put only id 'wsdbm:City92' -> 92
-            //  see the problem: one table has cities 1..92, another only 1, 92
-            //  'wsdbm:City92' in second table would have id 2, so it would hard to join with 1st table
             case "object" -> Integer.parseInt(value.replaceAll("\\D", ""));
             default -> throw new IllegalStateException("Unexpected value: " + typeOf(value));
         };
