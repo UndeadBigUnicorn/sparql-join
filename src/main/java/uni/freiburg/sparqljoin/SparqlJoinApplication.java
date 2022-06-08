@@ -8,6 +8,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import uni.freiburg.sparqljoin.model.db.ComplexTable;
 import uni.freiburg.sparqljoin.model.db.Database;
 import uni.freiburg.sparqljoin.service.DataLoaderService;
 import uni.freiburg.sparqljoin.service.JoinService;
@@ -53,8 +54,23 @@ public class SparqlJoinApplication implements CommandLineRunner {
     }
 
     public boolean joins(Database database) {
-        JoinService.join(database.tables().get("wsdbm:follows"), database.tables().get("wsdbm:likes"), "wsdbm:follows");
-        JoinService.join(database.tables().get("wsdbm:follows"), database.tables().get("foaf:givenName"), "wsdbm:follows");
+        ComplexTable joinedTable = joinService.join(
+                database.tables().get("wsdbm:userId").toComplex(),
+                database.tables().get("foaf:givenName"),
+                "wsdbm:userId",
+                "subject",
+                "subject");
+        joinService.join(
+                joinedTable,
+                database.tables().get("foaf:familyName"),
+                "wsdbm:userId",
+                "subject",
+                "subject");
+        joinService.join(database.tables().get("wsdbm:follows").toComplex(),
+                database.tables().get("wsdbm:likes"),
+                "wsdbm:follows",
+                "object",
+                "subject");
         return true;
     }
 }

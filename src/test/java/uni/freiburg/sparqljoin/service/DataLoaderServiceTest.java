@@ -1,11 +1,9 @@
 package uni.freiburg.sparqljoin.service;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 import uni.freiburg.sparqljoin.model.db.*;
 
@@ -81,8 +79,5 @@ public class DataLoaderServiceTest {
         tables.put("foaf:familyName", familyNameTable);
         return tables;
     }
-
-
-
 
 }

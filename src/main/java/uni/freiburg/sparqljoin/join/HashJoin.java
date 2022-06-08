@@ -19,20 +19,21 @@ public class HashJoin implements AbstractJoin {
      * for each item in the table
      * take a hash function of the join key and put value to the hash table partition
      *
-     * @param table  build input
-     * @param joinOn property value to join on name of the property to join on from the reference table
-     * @return build output - Hash Table
+     * @param table    build input
+     * @param property property value to join on name of the property to join on from the reference table
+     * @param joinOn   property field to join on
+     * @return         build output - Hash Table
      */
     @Override
-    public HashJoinBuildOutput build(ComplexTable table, String joinOn) {
+    public HashJoinBuildOutput build(ComplexTable table, String property, String joinOn) {
         HashMap<Long, List<JoinedItems>> buildOutput = new HashMap<>();
         table.list().forEach(properties -> {
-            if (!properties.values().containsKey(joinOn)) {
+            if (!properties.values().containsKey(property)) {
                 return;
             }
-            Item<Integer> item = properties.values().get(joinOn);
-            // we hash object since the join is on property1.object = property2.subject
-            long hashed = Hasher.hash(item.object());
+            Item<Integer> item = properties.values().get(property);
+            long key = joinOn.equals("subject") ? item.subject() : item.object();
+            long hashed = Hasher.hash(key);
             if (buildOutput.containsKey(hashed)) {
                 List<JoinedItems> list = buildOutput.get(hashed);
                 list.add(properties);
@@ -53,11 +54,13 @@ public class HashJoin implements AbstractJoin {
      * @param partition      partition from the build phase
      * @param referenceTable first table for the reference
      * @param probeTable     second table to join
-     * @param joinOn         name of the property to join on from the reference table
+     * @param property       name of the property to join on from the reference table
+     * @param joinOnT1       field from the referenceTable to join on
+     * @param joinOnT2       field from the probeTable to join on
      * @return               joined table with combined properties
      */
     @Override
-    public ComplexTable probe(BuildOutput partition, ComplexTable referenceTable, SimpleTable probeTable, String joinOn) {
+    public ComplexTable probe(BuildOutput partition, ComplexTable referenceTable, SimpleTable probeTable, String property, String joinOnT1, String joinOnT2) {
         HashMap<Long, List<JoinedItems>> hashJoinPartition = ((HashJoinBuildOutput) partition).getPartition();
         // create new dictionary for merge
         Dictionary referenceTableDictionary = referenceTable.getDictionary();
@@ -72,15 +75,17 @@ public class HashJoin implements AbstractJoin {
                 for (JoinedItems partitionedItems : hashJoinPartition.get(hashed)) {
                     // each item value contains pairs of subject - object
                     // get join property
-                    if (!partitionedItems.values().containsKey(joinOn)) {
+                    if (!partitionedItems.values().containsKey(property)) {
                         return;
                     }
-                    Item<Integer> referenceItem = partitionedItems.values().get(joinOn);
-                    // check if object of the property value in the partition is equal to the prob item subject
-                    if (referenceItem.object() == probeItem.subject()) {
+                    Item<Integer> referenceItem = partitionedItems.values().get(property);
+                    // check if join key of the property value in the partition is equal to the join key of the prob item
+                    long propertyJoinKey = joinOnT1.equals("subject") ? referenceItem.subject() : referenceItem.object();
+                    long probeJoinKey = joinOnT2.equals("subject") ? probeItem.subject() : probeItem.object();
+                    if (propertyJoinKey == probeJoinKey) {
                         // object was a string -> put value into new dictionary, update item value index
                         if (referenceTableDictionary.containsKey(referenceItem.object())) {
-                            partitionedItems.values().put(joinOn, new Item<>(
+                            partitionedItems.values().put(property, new Item<>(
                                     referenceItem.subject(),
                                     (int) newDict.put(referenceTableDictionary.get(referenceItem.object()))
                             ));

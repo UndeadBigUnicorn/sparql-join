@@ -47,4 +47,8 @@ public class Dictionary {
     public boolean containsKey(long key) {
         return this.values.containsKey(key);
     }
+
+    public HashMap<Long, String> getValues() {
+        return values;
+    }
 }
