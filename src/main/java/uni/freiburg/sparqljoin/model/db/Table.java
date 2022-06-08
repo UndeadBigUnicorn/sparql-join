@@ -4,42 +4,45 @@ import java.util.List;
 
 /**
  * Table object representation. This class is used to hold property values
- * @param <K> Type of the key for values
  * @param <V> Type of values hold by table
  */
-public class Table <K, V> {
+public abstract class Table<V> {
 
-    private final String property;
+    private PropertyValues<V> items;
 
-    private final PropertyValues<K, V> items;
+    private Dictionary dictionary;
 
-    private final Dictionary dictionary;
 
-    public Table(String property) {
-        this.property = property;
-        this.items = new PropertyValues<>();
-        this.dictionary = new Dictionary();
-    }
-
-    public Table(String property, Dictionary dictionary) {
-        this.property = property;
-        this.dictionary = dictionary;
-        this.items = new PropertyValues<>();
-    }
 
     /**
      * Save value
      * @param item to save
      */
-    public void insert(Item<K, V> item) {
+    public void insert(V item) {
         this.items.put(item);
     }
 
-    public List<Item<K, V>> list() {
+    /**
+     * Get all values in the table
+     * @return List of values
+     */
+    public List<V> list() {
         return this.items.getValues();
     }
 
     public Dictionary getDictionary() {
         return dictionary;
     }
+
+    /**
+     * Join 2 tables
+     * @param another table to join
+     * @param newDict joined dictionary
+     * @param values  new property values
+     * @return        joined ComplexTable
+     * @param <L>     Type of values hold by another table
+     * @param <T>     Type of values that would have new joined table
+     */
+//    abstract <L, T> Table<T> join(Table<L> another, Dictionary newDict, PropertyValues<T> values);
+
 }

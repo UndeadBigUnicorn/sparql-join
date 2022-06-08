@@ -4,10 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uni.freiburg.sparqljoin.model.db.Database;
-import uni.freiburg.sparqljoin.model.db.Dictionary;
-import uni.freiburg.sparqljoin.model.db.Item;
-import uni.freiburg.sparqljoin.model.db.Table;
+import uni.freiburg.sparqljoin.model.db.*;
 import uni.freiburg.sparqljoin.model.parser.Triplet;
 
 import java.io.IOException;
@@ -22,14 +19,14 @@ public class DataLoaderService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DataLoaderService.class);
 
-    private HashMap<String, Table<Integer, Integer>> tables;
+    private HashMap<String, SimpleTable> tables;
 
     /**
      * Parse the dataset and load data into database structure
      * @param path  to the dataset to read
      */
-    public Database<Integer, Integer> load(String path) {
-        LOG.debug("Loading dataset...");
+    public Database load(String path) {
+        LOG.info("Loading dataset...");
         tables = new HashMap<>();
         try (Stream<String> lines = Files.lines(Path.of(path))) {
             for (String line : (Iterable<String>) lines::iterator) {
@@ -39,7 +36,7 @@ public class DataLoaderService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new Database<>(tables);
+        return new Database(tables);
     }
 
     /**
@@ -65,13 +62,13 @@ public class DataLoaderService {
     private void processTriplet(final Triplet triplet) {
         // create new table
         if (!tables.containsKey(triplet.property())) {
-            tables.put(triplet.property(), new Table<>(triplet.property()));
+            tables.put(triplet.property(), new SimpleTable(triplet.property()));
         }
-        Table<Integer, Integer> table = tables.get(triplet.property());
+        SimpleTable table = tables.get(triplet.property());
         Dictionary dict = table.getDictionary();
 
-        int subjectKey = extractKey(triplet.subject(), dict);
-        int objectKey = extractKey(triplet.object(), dict);
+        long subjectKey = extractKey(triplet.subject(), dict);
+        int objectKey = (int) extractKey(triplet.object(), dict);
 
         table.insert(new Item<>(subjectKey, objectKey));
 
@@ -82,7 +79,7 @@ public class DataLoaderService {
      * @param value to extract key from
      * @return integer representation
      */
-    private int extractKey(String value, Dictionary dict) {
+    private long extractKey(String value, Dictionary dict) {
         return switch (typeOf(value)) {
             case "string" ->
                     dict.put(value);

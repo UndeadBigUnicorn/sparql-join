@@ -7,10 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
-import uni.freiburg.sparqljoin.model.db.Database;
-import uni.freiburg.sparqljoin.model.db.Dictionary;
-import uni.freiburg.sparqljoin.model.db.Item;
-import uni.freiburg.sparqljoin.model.db.Table;
+import uni.freiburg.sparqljoin.model.db.*;
 
 import java.util.HashMap;
 
@@ -24,8 +21,8 @@ public class DataLoaderServiceTest {
 
     @Test
     public void testLoadDataset() {
-        Database<Integer, Integer> expected = new Database<>(initTables());
-        Database<Integer, Integer> actual = dataLoaderService.load(DATASET_PATH);
+        Database expected = new Database(initTables());
+        Database actual = dataLoaderService.load(DATASET_PATH);
 
         Assert.assertEquals("Some table is missing", expected.tables().size(), actual.tables().size());
 
@@ -49,37 +46,37 @@ public class DataLoaderServiceTest {
         return dictionaries;
     }
 
-    private HashMap<String, Table<Integer, Integer>> initTables() {
+    private HashMap<String, SimpleTable> initTables() {
         HashMap<String, Dictionary> dictionaries = initDictionaries();
-        HashMap<String, Table<Integer, Integer>> tables = new HashMap<>();
+        HashMap<String, SimpleTable> tables = new HashMap<>();
 
-        Table<Integer, Integer> parentCountryTable = new Table<>("gn:parentCountry");
+        SimpleTable parentCountryTable = new SimpleTable("gn:parentCountry");
         parentCountryTable.insert(new Item<>(0, 20));
         parentCountryTable.insert(new Item<>(1, 0));
         tables.put("gn:parentCountry", parentCountryTable);
 
-        Table<Integer, Integer> followsTable = new Table<>("wsdbm:follows");
+        SimpleTable followsTable = new SimpleTable("wsdbm:follows");
         followsTable.insert(new Item<>(0, 24));
         followsTable.insert(new Item<>(0, 27));
         tables.put("wsdbm:follows", followsTable);
 
-        Table<Integer, Integer> userIdTable = new Table<>("wsdbm:userId");
+        SimpleTable userIdTable = new SimpleTable("wsdbm:userId");
         userIdTable.insert(new Item<>(0, 1806723));
         userIdTable.insert(new Item<>(2, 1936247));
         tables.put("wsdbm:userId", userIdTable);
 
-        Table<Integer, Integer> emailTable = new Table<>("sorg:email", dictionaries.get("sorg:email"));
+        SimpleTable emailTable = new SimpleTable("sorg:email", dictionaries.get("sorg:email"));
         emailTable.insert(new Item<>(0, 1));
         tables.put("sorg:email", emailTable);
 
-        Table<Integer, Integer> givenNameTable =
-                new Table<>("foaf:givenName", dictionaries.get("foaf:givenName"));
+        SimpleTable givenNameTable =
+                new SimpleTable("foaf:givenName", dictionaries.get("foaf:givenName"));
         givenNameTable.insert(new Item<>(0, 1));
         givenNameTable.insert(new Item<>(2, 1));
         tables.put("foaf:givenName", givenNameTable);
 
-        Table<Integer, Integer> familyNameTable =
-                new Table<>("foaf:familyName", dictionaries.get("foaf:familyName"));
+        SimpleTable familyNameTable =
+                new SimpleTable("foaf:familyName", dictionaries.get("foaf:familyName"));
         familyNameTable.insert(new Item<>(2, 1));
         tables.put("foaf:familyName", familyNameTable);
         return tables;

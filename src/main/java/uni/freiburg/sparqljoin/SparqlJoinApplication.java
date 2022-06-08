@@ -8,7 +8,9 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import uni.freiburg.sparqljoin.model.db.Database;
 import uni.freiburg.sparqljoin.service.DataLoaderService;
+import uni.freiburg.sparqljoin.service.JoinService;
 import uni.freiburg.sparqljoin.util.Performance;
 
 @SpringBootApplication
@@ -18,6 +20,9 @@ public class SparqlJoinApplication implements CommandLineRunner {
 
     @Autowired
     DataLoaderService dataLoaderService;
+
+    @Autowired
+    JoinService joinService;
 
     @Value("${datasetPath}")
     private String datasetPath;
@@ -37,12 +42,19 @@ public class SparqlJoinApplication implements CommandLineRunner {
 
     public boolean perform() {
         // a) load data, build dictionaries
-        Performance.measure(this::loadData, "Load Data");
+        Database database = Performance.measure(this::loadData, "Load Data");
+        // b) join algorithms
+        Performance.measure(() -> this.joins(database), "Join Algorithms");
         return true;
     }
 
-    public boolean loadData() {
-        dataLoaderService.load(datasetPath);
+    public Database loadData() {
+        return dataLoaderService.load(datasetPath);
+    }
+
+    public boolean joins(Database database) {
+        JoinService.join(database.tables().get("wsdbm:follows"), database.tables().get("wsdbm:likes"), "wsdbm:follows");
+        JoinService.join(database.tables().get("wsdbm:follows"), database.tables().get("foaf:givenName"), "wsdbm:follows");
         return true;
     }
 }

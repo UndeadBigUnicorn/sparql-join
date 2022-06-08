@@ -5,22 +5,25 @@ import java.util.List;
 
 /**
  * Representation of property table values
- * @param <K> Subject
- * @param <V> Object
+ * @param <V> Object type
  */
-public class PropertyValues<K, V> {
+public class PropertyValues<V> {
 
-    private List<Item<K, V>> values;
+    private final List<V> values;
 
     public PropertyValues() {
         this.values = new ArrayList<>();
     }
 
-    public void put(Item<K, V> item) {
+    public PropertyValues(List<V> values) {
+        this.values = values;
+    }
+
+    public void put(V item) {
         values.add(item);
     }
 
-    public List<Item<K, V>> getValues() {
+    public List<V> getValues() {
         return values;
     }
 }

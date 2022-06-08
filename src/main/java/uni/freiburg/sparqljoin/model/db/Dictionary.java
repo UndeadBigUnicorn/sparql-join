@@ -7,11 +7,11 @@ import java.util.HashMap;
  */
 public class Dictionary {
 
-    private HashMap<Integer, String> values;
+    private final HashMap<Long, String> values;
 
-    private HashMap<String, Integer> invertedValues;
+    private final HashMap<String, Long> invertedValues;
 
-    private int index;
+    private long index;
 
     public Dictionary() {
         this.values = new HashMap<>();
@@ -24,7 +24,7 @@ public class Dictionary {
      * @param value to save
      * @return unique integer that represent putted value
      */
-    public int put(String value) {
+    public long put(String value) {
         // save value into the dictionary
         if (!this.invertedValues.containsKey(value)) {
             this.values.put(this.index, value);
@@ -40,7 +40,11 @@ public class Dictionary {
      * @param key index representation of the value
      * @return value from the dictionary
      */
-    public String get(int key) {
+    public String get(long key) {
         return this.values.get(key);
+    }
+
+    public boolean containsKey(long key) {
+        return this.values.containsKey(key);
     }
 }

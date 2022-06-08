@@ -1,6 +1,7 @@
 package uni.freiburg.sparqljoin.model.db;
 
 import lombok.Builder;
+import lombok.Setter;
 
 /**
  * Tuple representation of the PropertyValue
@@ -8,5 +9,5 @@ import lombok.Builder;
  * @param object  value
  */
 @Builder
-public record Item <K, V>(K subject, V object) {
+public record Item<V>(long subject, V object) {
 }
