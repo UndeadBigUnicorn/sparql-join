@@ -72,12 +72,12 @@ public class JoinServiceTest {
         joinedValue2 = new HashMap<>();
         joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
         joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 5));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(2, joinedValue2));
         joinedValue3 = new HashMap<>();
         joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
         joinedValue3.put("foaf:givenName", new Item<>(24, 3));
-        joinedValue3.put("foaf:familyName", new Item<>(0, 6));
+        joinedValue3.put("foaf:familyName", new Item<>(24, 6));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.join(

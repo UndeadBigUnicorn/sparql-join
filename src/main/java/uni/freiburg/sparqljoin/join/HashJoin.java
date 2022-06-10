@@ -65,7 +65,6 @@ public class HashJoin implements AbstractJoin {
         // create new dictionary for merge
         Dictionary referenceTableDictionary = referenceTable.getDictionary();
         Dictionary probeTableDictionary = probeTable.getDictionary();
-        Dictionary newDict = new Dictionary();
         List<JoinedItems> joinedItems = new ArrayList<>();
         probeTable.list().forEach(probeItem -> {
             long hashed = Hasher.hash(probeItem.subject());
@@ -84,16 +83,10 @@ public class HashJoin implements AbstractJoin {
                     long probeJoinKey = joinOnT2.equals("subject") ? probeItem.subject() : probeItem.object();
                     if (propertyJoinKey == probeJoinKey) {
                         // object was a string -> put value into new dictionary, update item value index
-                        if (referenceTableDictionary.containsKey(referenceItem.object())) {
-                            partitionedItems.values().put(property, new Item<>(
-                                    referenceItem.subject(),
-                                    (int) newDict.put(referenceTableDictionary.get(referenceItem.object()))
-                            ));
-                        }
                         if (probeTableDictionary.containsKey(probeItem.object())) {
                             probeItem = new Item<>(
                                     probeItem.subject(),
-                                    (int) newDict.put(probeTableDictionary.get(probeItem.object()))
+                                    (int) referenceTableDictionary.put(probeTableDictionary.get(probeItem.object()))
                             );
                         }
                         // add new property values
@@ -106,7 +99,7 @@ public class HashJoin implements AbstractJoin {
 
         // concat properties of 2 tables
         List<String> properties = Stream.concat(referenceTable.getProperties().stream(), Stream.of(probeTable.getProperty())).toList();
-        return new ComplexTable(properties, newDict, new PropertyValues<>(joinedItems));
+        return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }
 
 }
