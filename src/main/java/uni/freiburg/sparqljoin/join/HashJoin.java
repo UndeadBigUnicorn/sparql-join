@@ -89,9 +89,11 @@ public class HashJoin implements AbstractJoin {
                                     (int) referenceTableDictionary.put(probeTableDictionary.get(probeItem.object()))
                             );
                         }
-                        // add new property values
-                        partitionedItems.values().put(probeTable.getProperty(), probeItem);
-                        joinedItems.add(partitionedItems);
+                        // clone reference item values to avoid overwriting values by reference
+                        // and add new property value
+                        HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) partitionedItems.values().clone();
+                        values.put(probeTable.getProperty(), probeItem);
+                        joinedItems.add(new JoinedItems(partitionedItems.subject(), values));
                     }
                 }
             }

@@ -20,7 +20,7 @@ public class JoinService {
      * @param joinOnT2 join field from table 2
      */
     public ComplexTable join(ComplexTable t1, SimpleTable t2, String property, String joinOnT1, String joinOnT2) {
-        LOG.debug("Joining table '{}' on {}.{} = {}.{} ...",
+        LOG.debug("Joining table '{}' on '{}'.{} = '{}'.{} ...",
                 t1.getProperties(), property, joinOnT1, t2.getProperty(), joinOnT2);
         ComplexTable joinedTable = Performance.measure(() ->
                 new HashJoin().join(t1, t2, property, joinOnT1, joinOnT2), "Hash Join"

@@ -5,10 +5,11 @@ This repository contains Implementation of Join Algorithm for SPARQL Query Proce
 ### Join Algorithms
 Implemented Join algorithms are used on Waterloo SPARQL Diversity Test Suite (WatDiv) dataset. 
 Dateset is being vertical partitioned into tables, that lately are joined to the specific SPARQL query.
-The project implements 3 Join Algorithms:
+The project implements Join Algorithms:
+- Hash Join
 - Partitioned Parallel Hash Join
 - Radix Hash Join
-- Sort-Marge Join
+- Sort-Merge Join
 
 ### SPARQL Queries
 One example of SPARQL query on WatDiv dataset is:
