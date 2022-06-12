@@ -18,8 +18,11 @@ public class JoinServiceTest {
     @InjectMocks
     JoinService joinService;
 
+    /**
+     * Test sequence hash join of 1 property tables
+     */
     @Test
-    public void testJoin() {
+    public void testSimpleHashJoin() {
         Database database = new Database(initTables());
 
         // join userId on givenName
@@ -45,9 +48,10 @@ public class JoinServiceTest {
 
         ComplexTable actualJoinedUserIdGivenNameTable = joinService.join(
                 database.tables().get("wsdbm:userId").toComplex(),
-                database.tables().get("foaf:givenName"),
+                database.tables().get("foaf:givenName").toComplex(),
                 "wsdbm:userId",
                 "subject",
+                "foaf:givenName",
                 "subject");
 
         compareTables(expectedJoinedUserIdGivenNameTable, actualJoinedUserIdGivenNameTable);
@@ -82,9 +86,10 @@ public class JoinServiceTest {
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.join(
                 actualJoinedUserIdGivenNameTable,
-                database.tables().get("foaf:familyName"),
+                database.tables().get("foaf:familyName").toComplex(),
                 "wsdbm:userId",
                 "subject",
+                "foaf:familyName",
                 "subject");
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameTable, actualJoinedUserIdGivenNameFamilyNameTable);
@@ -116,9 +121,10 @@ public class JoinServiceTest {
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.join(
                 actualJoinedUserIdGivenNameFamilyNameTable,
-                database.tables().get("wsdbm:follows"),
+                database.tables().get("wsdbm:follows").toComplex(),
                 "wsdbm:userId",
                 "subject",
+                "wsdbm:follows",
                 "subject");
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
@@ -146,12 +152,86 @@ public class JoinServiceTest {
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.join(
                 actualJoinedUserIdGivenNameFamilyNameFollowsTable,
-                database.tables().get("wsdbm:likes"),
+                database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:follows",
                 "object",
+                "wsdbm:likes",
                 "subject");
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable, actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable);
+    }
+
+    /**
+     * Test hash join of 2 multi-properties tables
+     */
+    @Test
+    public void testComplexHashJoin() {
+        Database database = new Database(initTables());
+
+        // join userId, givenName, familyName on userId, givenName, familyName, follows
+
+        Dictionary expectedJoinedUserIdGivenNameFamilyNameFollowsDict = new Dictionary();
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LUKE");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("HAN");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LEA");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SKYWALKER");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SOLO");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("ORGANA");
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
+                expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
+
+        HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
+        HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
+        HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
+
+        ComplexTable userIdGivenNameTable = joinService.join(
+                database.tables().get("wsdbm:userId").toComplex(),
+                database.tables().get("foaf:givenName").toComplex(),
+                "wsdbm:userId",
+                "subject",
+                "foaf:givenName",
+                "subject");
+
+        ComplexTable userIdGivenNameFamilyNameTable = joinService.join(
+                userIdGivenNameTable,
+                database.tables().get("foaf:familyName").toComplex(),
+                "wsdbm:userId",
+                "subject",
+                "foaf:familyName",
+                "subject");
+
+        ComplexTable userIdGivenNameFamilyNameFollowsTable = joinService.join(
+                userIdGivenNameFamilyNameTable,
+                database.tables().get("wsdbm:follows").toComplex(),
+                "wsdbm:userId",
+                "subject",
+                "wsdbm:follows",
+                "subject");
+
+        ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.join(
+                userIdGivenNameFamilyNameTable,
+                userIdGivenNameFamilyNameFollowsTable,
+                "wsdbm:userId",
+                "subject",
+                "wsdbm:userId",
+                "subject");
+
+        compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
+
     }
 
     private void compareTables(ComplexTable expected, ComplexTable actual) {

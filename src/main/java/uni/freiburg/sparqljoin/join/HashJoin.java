@@ -1,12 +1,11 @@
 package uni.freiburg.sparqljoin.join;
 
 import uni.freiburg.sparqljoin.model.db.*;
+import uni.freiburg.sparqljoin.model.db.Dictionary;
 import uni.freiburg.sparqljoin.model.join.*;
 import uni.freiburg.sparqljoin.util.Hasher;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -54,45 +53,59 @@ public class HashJoin implements AbstractJoin {
      * @param partition      partition from the build phase
      * @param referenceTable first table for the reference
      * @param probeTable     second table to join
-     * @param property       name of the property to join on from the reference table
+     * @param joinPropertyT1 name of the property to join on from the T1
      * @param joinOnT1       field from the referenceTable to join on
+     * @param joinPropertyT2 name of the property to join on from the T2
      * @param joinOnT2       field from the probeTable to join on
      * @return               joined table with combined properties
      */
     @Override
-    public ComplexTable probe(BuildOutput partition, ComplexTable referenceTable, SimpleTable probeTable, String property, String joinOnT1, String joinOnT2) {
+    public ComplexTable probe(BuildOutput partition, ComplexTable referenceTable, ComplexTable probeTable,
+                              String joinPropertyT1, String joinOnT1,
+                              String joinPropertyT2, String joinOnT2) {
         HashMap<Long, List<JoinedItems>> hashJoinPartition = ((HashJoinBuildOutput) partition).getPartition();
         // create new dictionary for merge
         Dictionary referenceTableDictionary = referenceTable.getDictionary();
         Dictionary probeTableDictionary = probeTable.getDictionary();
         List<JoinedItems> joinedItems = new ArrayList<>();
-        probeTable.list().forEach(probeItem -> {
-            long hashed = Hasher.hash(probeItem.subject());
+        probeTable.list().forEach(probeItems -> {
+            long hashed = Hasher.hash(probeItems.subject());
             // hash over join key matches existing bucket:
             // check items in the bucket if the key matches exactly
             if (hashJoinPartition.containsKey(hashed)) {
                 for (JoinedItems partitionedItems : hashJoinPartition.get(hashed)) {
                     // each item value contains pairs of subject - object
                     // get join property
-                    if (!partitionedItems.values().containsKey(property)) {
+                    if (!partitionedItems.values().containsKey(joinPropertyT1)) {
                         return;
                     }
-                    Item<Integer> referenceItem = partitionedItems.values().get(property);
+                    Item<Integer> referenceItem = partitionedItems.values().get(joinPropertyT1);
+                    if (!probeItems.values().containsKey(joinPropertyT2)) {
+                        return;
+                    }
+                    Item<Integer> probeItem = probeItems.values().get(joinPropertyT2);
                     // check if join key of the property value in the partition is equal to the join key of the prob item
                     long propertyJoinKey = joinOnT1.equals("subject") ? referenceItem.subject() : referenceItem.object();
                     long probeJoinKey = joinOnT2.equals("subject") ? probeItem.subject() : probeItem.object();
                     if (propertyJoinKey == probeJoinKey) {
-                        // object was a string -> put value into new dictionary, update item value index
-                        if (probeTableDictionary.containsKey(probeItem.object())) {
-                            probeItem = new Item<>(
-                                    probeItem.subject(),
-                                    (int) referenceTableDictionary.put(probeTableDictionary.get(probeItem.object()))
-                            );
-                        }
                         // clone reference item values to avoid overwriting values by reference
-                        // and add new property value
                         HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) partitionedItems.values().clone();
-                        values.put(probeTable.getProperty(), probeItem);
+                        // add new property values
+                        probeItems.values().forEach((property, propertyItem) -> {
+                            // object was a string -> put value into new dictionary, update item value index
+                            if (probeTableDictionary.containsKey(propertyItem.object())) {
+                                values.put(property, new Item<>(
+                                        propertyItem.subject(),
+                                        (int) referenceTableDictionary.put(probeTableDictionary.get(propertyItem.object()))
+                                ));
+                            } else {
+                                // else put as it is
+                                values.put(property, new Item<>(
+                                        propertyItem.subject(),
+                                        propertyItem.object())
+                                );
+                            }
+                        });
                         joinedItems.add(new JoinedItems(partitionedItems.subject(), values));
                     }
                 }
@@ -100,7 +113,9 @@ public class HashJoin implements AbstractJoin {
         });
 
         // concat properties of 2 tables
-        List<String> properties = Stream.concat(referenceTable.getProperties().stream(), Stream.of(probeTable.getProperty())).toList();
+        Set<String> set = new LinkedHashSet<>(referenceTable.getProperties());
+        set.addAll(probeTable.getProperties());
+        List<String> properties = new ArrayList<>(set);
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }
 
