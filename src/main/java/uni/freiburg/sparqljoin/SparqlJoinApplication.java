@@ -54,21 +54,27 @@ public class SparqlJoinApplication implements CommandLineRunner {
     }
 
     public boolean joins(Database database) {
-        ComplexTable joinedTable = joinService.join(
+        ComplexTable joinedTable = joinService.hashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
                 database.tables().get("foaf:givenName").toComplex(),
                 "wsdbm:userId",
                 "subject",
                 "foaf:givenName",
                 "subject");
-        joinService.join(
+        joinService.hashJoin(
                 joinedTable,
                 database.tables().get("foaf:familyName").toComplex(),
                 "wsdbm:userId",
                 "subject",
                 "foaf:familyName",
                 "subject");
-        joinService.join(database.tables().get("wsdbm:follows").toComplex(),
+        joinService.hashJoin(database.tables().get("wsdbm:follows").toComplex(),
+                database.tables().get("wsdbm:likes").toComplex(),
+                "wsdbm:follows",
+                "object",
+                "wsdbm:likes",
+                "subject");
+        joinService.sortMergeJoin(database.tables().get("wsdbm:follows").toComplex(),
                 database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:follows",
                 "object",

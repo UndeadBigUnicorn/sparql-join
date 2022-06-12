@@ -1,7 +1,7 @@
 package uni.freiburg.sparqljoin.model.join;
-
 import uni.freiburg.sparqljoin.model.db.Item;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 public record JoinedItems(long subject, HashMap<String, Item<Integer>> values){
@@ -20,6 +20,30 @@ public record JoinedItems(long subject, HashMap<String, Item<Integer>> values){
             }
         }
         return true;
+    }
+
+    public static class JoinedItemsComparator implements Comparator<JoinedItems> {
+
+        // property to sort on
+        private final String property;
+
+        private final String field;
+
+        public JoinedItemsComparator(String property, String field) {
+            this.property = property;
+            this.field = field;
+        }
+
+        @Override
+        public int compare(JoinedItems o1, JoinedItems o2) {
+            Item<Integer> o1Item = o1.values().get(property);
+            Item<Integer> o2Item = o2.values().get(property);
+
+            long o1Key = field.equals("subject") ? o1Item.subject() : o1Item.object();
+            long o2Key = field.equals("subject") ? o2Item.subject() : o2Item.object();
+
+            return Long.compare(o1Key, o2Key);
+        }
     }
 
 }

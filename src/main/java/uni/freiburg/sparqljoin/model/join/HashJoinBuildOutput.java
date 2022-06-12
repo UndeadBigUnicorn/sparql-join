@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * This class provides the output of the HashJoin build phase - Hash Table with partitions
- * @param \<V> type of the object values in the partitions
  */
 public class HashJoinBuildOutput extends BuildOutput{
 

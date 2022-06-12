@@ -50,7 +50,7 @@ public class ComplexTable {
      * Get all values in the table
      * @return List of values
      */
-    public List<JoinedItems> list() {
+    public List<JoinedItems> getValues() {
         return this.items.getValues();
     }
 
@@ -70,4 +70,5 @@ public class ComplexTable {
         List<String> properties = Stream.concat(this.getProperties().stream(), another.getProperties().stream()).toList();
         return new ComplexTable(properties, newDict, values);
     }
+
 }

@@ -6,7 +6,6 @@ import uni.freiburg.sparqljoin.model.join.*;
 import uni.freiburg.sparqljoin.util.Hasher;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * This class implements hash join algorithm
@@ -26,7 +25,7 @@ public class HashJoin implements AbstractJoin {
     @Override
     public HashJoinBuildOutput build(ComplexTable table, String property, String joinOn) {
         HashMap<Long, List<JoinedItems>> buildOutput = new HashMap<>();
-        table.list().forEach(properties -> {
+        table.getValues().forEach(properties -> {
             if (!properties.values().containsKey(property)) {
                 return;
             }
@@ -68,7 +67,7 @@ public class HashJoin implements AbstractJoin {
         Dictionary referenceTableDictionary = referenceTable.getDictionary();
         Dictionary probeTableDictionary = probeTable.getDictionary();
         List<JoinedItems> joinedItems = new ArrayList<>();
-        probeTable.list().forEach(probeItems -> {
+        probeTable.getValues().forEach(probeItems -> {
             long hashed = Hasher.hash(probeItems.subject());
             // hash over join key matches existing bucket:
             // check items in the bucket if the key matches exactly
