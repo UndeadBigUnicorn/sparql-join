@@ -84,29 +84,43 @@ public class SortMergeJoin implements AbstractJoin {
 
             long propertyJoinKey = joinOnT1.equals("subject") ? referenceItem.subject() : referenceItem.object();
             long probeJoinKey = joinOnT2.equals("subject") ? probeItem.subject() : probeItem.object();
-            if (propertyJoinKey == probeJoinKey) {
-                // clone reference item values to avoid overwriting values by reference
-                HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) referenceItems.values().clone();
-                // add new property values
-                probeItems.values().forEach((property, propertyItem) -> {
-                    // object was a string -> put value into new dictionary, update item value index
-                    if (probeTableDictionary.containsKey(propertyItem.object())) {
-                        values.put(property, new Item<>(
-                                propertyItem.subject(),
-                                (int) referenceTableDictionary.put(probeTableDictionary.get(propertyItem.object()))
-                        ));
-                    } else {
-                        // else put as it is
-                        values.put(property, new Item<>(
-                                propertyItem.subject(),
-                                propertyItem.object())
-                        );
-                    }
-                });
-                joinedItems.add(new JoinedItems(referenceItems.subject(), values));
+            if (propertyJoinKey > probeJoinKey) {
                 j++;
-            } else {
+            }
+            else if (propertyJoinKey < probeJoinKey){
                 i++;
+            } else {
+                mergeTuples(joinedItems, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
+
+                // output further tuples that match with reference item
+                int jPrime = j+1;
+                while (jPrime < probeValues.size()) {
+                    JoinedItems probeItemsNext = probeValues.get(jPrime);
+                    Item<Integer> probeItemNext = probeItemsNext.values().get(joinPropertyT2);
+                    long probeJoinKeyNext = joinOnT2.equals("subject") ? probeItemNext.subject() : probeItemNext.object();
+                    if (propertyJoinKey == probeJoinKeyNext) {
+                        mergeTuples(joinedItems, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
+                        jPrime++;
+                    } else {
+                        break;
+                    }
+                }
+
+                // output further tuples that match with probe item
+                int iPrime = i+1;
+                while (iPrime < referenceValues.size()) {
+                    JoinedItems referenceItemsNext = referenceValues.get(iPrime);
+                    Item<Integer> referenceItemNext = referenceItemsNext.values().get(joinPropertyT1);
+                    long referenceJoinKeyNext = joinOnT1.equals("subject") ? referenceItemNext.subject() : referenceItemNext.object();
+                    if (referenceJoinKeyNext == probeJoinKey) {
+                        mergeTuples(joinedItems, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
+                        iPrime++;
+                    } else {
+                        break;
+                    }
+                }
+                i++;
+                j++;
             }
         }
 
@@ -115,6 +129,28 @@ public class SortMergeJoin implements AbstractJoin {
         set.addAll(probeTable.getProperties());
         List<String> properties = new ArrayList<>(set);
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
+    }
+
+    private void mergeTuples(List<JoinedItems> joinedItems, JoinedItems referenceItems, JoinedItems probeItems, Dictionary referenceTableDictionary, Dictionary probeTableDictionary) {
+        // clone reference item values to avoid overwriting values by reference
+        HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) referenceItems.values().clone();
+        // add new property values
+        probeItems.values().forEach((property, propertyItem) -> {
+            // object was a string -> put value into new dictionary, update item value index
+            if (probeTableDictionary.containsKey(propertyItem.object())) {
+                values.put(property, new Item<>(
+                        propertyItem.subject(),
+                        (int) referenceTableDictionary.put(probeTableDictionary.get(propertyItem.object()))
+                ));
+            } else {
+                // else put as it is
+                values.put(property, new Item<>(
+                        propertyItem.subject(),
+                        propertyItem.object())
+                );
+            }
+        });
+        joinedItems.add(new JoinedItems(referenceItems.subject(), values));
     }
 
 }
