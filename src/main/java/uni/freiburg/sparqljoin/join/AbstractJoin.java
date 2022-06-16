@@ -1,7 +1,13 @@
 package uni.freiburg.sparqljoin.join;
 
 import uni.freiburg.sparqljoin.model.db.ComplexTable;
+import uni.freiburg.sparqljoin.model.db.Dictionary;
+import uni.freiburg.sparqljoin.model.db.Item;
 import uni.freiburg.sparqljoin.model.join.BuildOutput;
+import uni.freiburg.sparqljoin.model.join.JoinedItems;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * This interface provides functionality for joins
@@ -10,17 +16,19 @@ public interface AbstractJoin {
 
     /**
      * Join 2 table
-     * @param t1             first table
-     * @param t2             second table
-     * @param joinPropertyT1 name of the property to join on from the T1
-     * @param joinOnT1       field from the t1 to join on
-     * @param joinPropertyT2 name of the property to join on from the T2
-     * @param joinOnT2       field from the t2 to join on
-     * @return               joined table result
+     * @param R              R relation join table
+     * @param S              S relation join table
+     * @param joinPropertyR  name of the property to join on from table R
+     * @param joinOnR        join field in property from R
+     * @param joinPropertyS  name of the property to join on from table S
+     * @param joinOnS        join field in property from S
+     * @return               new joined table
      */
-    default ComplexTable join(ComplexTable t1, ComplexTable t2, String joinPropertyT1, String joinOnT1, String joinPropertyT2, String joinOnT2) {
-        BuildOutput output = build(t1, joinPropertyT1, joinOnT1);
-        return probe(output, t1, t2, joinPropertyT1, joinOnT1, joinPropertyT2, joinOnT2);
+    default ComplexTable join(ComplexTable R, ComplexTable S,
+                              String joinPropertyR, String joinOnR,
+                              String joinPropertyS, String joinOnS) {
+        BuildOutput output = build(R, joinPropertyR, joinOnR);
+        return probe(output, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
     }
 
     /**
@@ -35,15 +43,46 @@ public interface AbstractJoin {
     /**
      * Probe phase of join
      * @param partition      partition from the build phase
-     * @param referenceTable first table for the reference
-     * @param probeTable     to join
-     * @param joinPropertyT1 name of the property to join on from the T1
-     * @param joinOnT1       field from the t1 to join on
-     * @param joinPropertyT2 name of the property to join on from the T2
-     * @param joinOnT2       field from the t2 to join on
-     * @returns              joined values
+     * @param R              R relation table for the reference
+     * @param S              S relation table to join
+     * @param joinPropertyR  name of the property to join on from table R
+     * @param joinOnR        join field in property from R
+     * @param joinPropertyS  name of the property to join on from table S
+     * @param joinOnS        join field in property from S
+     * @returns              joined values in new table
      */
-    ComplexTable probe(BuildOutput partition, ComplexTable referenceTable, ComplexTable probeTable,
-                       String joinPropertyT1, String joinOnT1,
-                       String joinPropertyT2, String joinOnT2);
+    ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
+                       String joinPropertyR, String joinOnR,
+                       String joinPropertyS, String joinOnS);
+
+
+    /**
+     * Merge 2 tuples into a single with all properties
+     * @param joinedItems               Collection of joined items to add new tuple
+     * @param itemsR                    items from R relation
+     * @param itemsS                    items from S relation
+     * @param dictionaryR               R table dictionary
+     * @param dictionaryS               S table dictionary
+     */
+    default void mergeTuples(List<JoinedItems> joinedItems, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
+        // clone reference item values to avoid overwriting values by reference
+        HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) itemsR.values().clone();
+        // add new property values
+        itemsS.values().forEach((property, propertyItem) -> {
+            // object was a string -> put value into new dictionary, update item value index
+            if (dictionaryS.containsKey(propertyItem.object())) {
+                values.put(property, new Item<>(
+                        propertyItem.subject(),
+                        (int) dictionaryR.put(dictionaryS.get(propertyItem.object()))
+                ));
+            } else {
+                // else put as it is
+                values.put(property, new Item<>(
+                        propertyItem.subject(),
+                        propertyItem.object())
+                );
+            }
+        });
+        joinedItems.add(new JoinedItems(itemsR.subject(), values));
+    }
 }

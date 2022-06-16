@@ -50,24 +50,24 @@ public class HashJoin implements AbstractJoin {
      * find matching bucket hash map partition
      * compare and join items in the matching bucket
      * @param partition      partition from the build phase
-     * @param referenceTable first table for the reference
-     * @param probeTable     second table to join
-     * @param joinPropertyT1 name of the property to join on from the T1
-     * @param joinOnT1       field from the referenceTable to join on
-     * @param joinPropertyT2 name of the property to join on from the T2
-     * @param joinOnT2       field from the probeTable to join on
-     * @return               joined table with combined properties
+     * @param R              R relation table for the reference
+     * @param S              S relation table to join
+     * @param joinPropertyR  name of the property to join on from table R
+     * @param joinOnR        join field in property from R
+     * @param joinPropertyS  name of the property to join on from table S
+     * @param joinOnS        join field in property from S
+     * @return               new joined table
      */
     @Override
-    public ComplexTable probe(BuildOutput partition, ComplexTable referenceTable, ComplexTable probeTable,
-                              String joinPropertyT1, String joinOnT1,
-                              String joinPropertyT2, String joinOnT2) {
+    public ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
+                              String joinPropertyR, String joinOnR,
+                              String joinPropertyS, String joinOnS) {
         HashMap<Long, List<JoinedItems>> hashJoinPartition = ((HashJoinBuildOutput) partition).getPartition();
         // create new dictionary for merge
-        Dictionary referenceTableDictionary = referenceTable.getDictionary();
-        Dictionary probeTableDictionary = probeTable.getDictionary();
+        Dictionary referenceTableDictionary = R.getDictionary();
+        Dictionary probeTableDictionary = S.getDictionary();
         List<JoinedItems> joinedItems = new ArrayList<>();
-        probeTable.getValues().forEach(probeItems -> {
+        S.getValues().forEach(probeItems -> {
             long hashed = Hasher.hash(probeItems.subject());
             // hash over join key matches existing bucket:
             // check items in the bucket if the key matches exactly
@@ -75,45 +75,27 @@ public class HashJoin implements AbstractJoin {
                 for (JoinedItems partitionedItems : hashJoinPartition.get(hashed)) {
                     // each item value contains pairs of subject - object
                     // get join property
-                    if (!partitionedItems.values().containsKey(joinPropertyT1)) {
+                    if (!partitionedItems.values().containsKey(joinPropertyR)) {
                         return;
                     }
-                    Item<Integer> referenceItem = partitionedItems.values().get(joinPropertyT1);
-                    if (!probeItems.values().containsKey(joinPropertyT2)) {
+                    Item<Integer> referenceItem = partitionedItems.values().get(joinPropertyR);
+                    if (!probeItems.values().containsKey(joinPropertyS)) {
                         return;
                     }
-                    Item<Integer> probeItem = probeItems.values().get(joinPropertyT2);
+                    Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
                     // check if join key of the property value in the partition is equal to the join key of the prob item
-                    long propertyJoinKey = joinOnT1.equals("subject") ? referenceItem.subject() : referenceItem.object();
-                    long probeJoinKey = joinOnT2.equals("subject") ? probeItem.subject() : probeItem.object();
-                    if (propertyJoinKey == probeJoinKey) {
-                        // clone reference item values to avoid overwriting values by reference
-                        HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) partitionedItems.values().clone();
-                        // add new property values
-                        probeItems.values().forEach((property, propertyItem) -> {
-                            // object was a string -> put value into new dictionary, update item value index
-                            if (probeTableDictionary.containsKey(propertyItem.object())) {
-                                values.put(property, new Item<>(
-                                        propertyItem.subject(),
-                                        (int) referenceTableDictionary.put(probeTableDictionary.get(propertyItem.object()))
-                                ));
-                            } else {
-                                // else put as it is
-                                values.put(property, new Item<>(
-                                        propertyItem.subject(),
-                                        propertyItem.object())
-                                );
-                            }
-                        });
-                        joinedItems.add(new JoinedItems(partitionedItems.subject(), values));
+                    long referenceJoinKey = joinOnR.equals("subject") ? referenceItem.subject() : referenceItem.object();
+                    long probeJoinKey = joinOnS.equals("subject") ? probeItem.subject() : probeItem.object();
+                    if (referenceJoinKey == probeJoinKey) {
+                        mergeTuples(joinedItems, partitionedItems, probeItems, referenceTableDictionary, probeTableDictionary);
                     }
                 }
             }
         });
 
         // concat properties of 2 tables
-        Set<String> set = new LinkedHashSet<>(referenceTable.getProperties());
-        set.addAll(probeTable.getProperties());
+        Set<String> set = new LinkedHashSet<>(R.getProperties());
+        set.addAll(S.getProperties());
         List<String> properties = new ArrayList<>(set);
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }
