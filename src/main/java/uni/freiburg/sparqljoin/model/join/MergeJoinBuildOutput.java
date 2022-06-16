@@ -12,13 +12,12 @@ public class MergeJoinBuildOutput extends BuildOutput{
 
     private List<JoinedItems> valuesS;
 
-    public MergeJoinBuildOutput() {}
-
-    public void setValuesR(List<JoinedItems> valuesR) {
+    public MergeJoinBuildOutput(List<JoinedItems> valuesR) {
         this.valuesR = valuesR;
     }
 
-    public void setValuesS(List<JoinedItems> valuesS) {
+    public MergeJoinBuildOutput(List<JoinedItems> valuesR, List<JoinedItems> valuesS) {
+        this.valuesR = valuesR;
         this.valuesS = valuesS;
     }
 

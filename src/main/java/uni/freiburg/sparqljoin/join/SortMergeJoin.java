@@ -31,9 +31,7 @@ public class SortMergeJoin implements AbstractJoin {
                              String joinPropertyS, String joinOnS) {
         MergeJoinBuildOutput sortedR = (MergeJoinBuildOutput) build(R, joinPropertyR, joinOnR);
         MergeJoinBuildOutput sortedS = (MergeJoinBuildOutput) build(S, joinPropertyS, joinOnS);
-        MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput();
-        buildOutput.setValuesR(sortedR.getValuesR());
-        buildOutput.setValuesS(sortedS.getValuesR());
+        MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput(sortedR.getValuesR(), sortedS.getValuesR());
         return probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
     }
 
@@ -48,9 +46,7 @@ public class SortMergeJoin implements AbstractJoin {
     public BuildOutput build(ComplexTable table, String property, String joinOn) {
         List<JoinedItems> values = table.getValues();
         values.sort(new JoinedItems.JoinedItemsComparator(property, joinOn));
-        MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput();
-        buildOutput.setValuesR(values);
-        return buildOutput;
+        return new MergeJoinBuildOutput(values);
     }
 
     /**
