@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import uni.freiburg.sparqljoin.join.JoinOn;
 import uni.freiburg.sparqljoin.model.db.*;
 import uni.freiburg.sparqljoin.model.db.Dictionary;
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
@@ -49,9 +50,9 @@ public class JoinServiceTest {
                 database.tables().get("wsdbm:userId").toComplex(),
                 database.tables().get("foaf:givenName").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "foaf:givenName",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameTable, actualJoinedUserIdGivenNameTable);
 
@@ -87,9 +88,9 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameTable,
                 database.tables().get("foaf:familyName").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "foaf:familyName",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameTable, actualJoinedUserIdGivenNameFamilyNameTable);
 
@@ -122,9 +123,9 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameFamilyNameTable,
                 database.tables().get("wsdbm:follows").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "wsdbm:follows",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
 
@@ -153,9 +154,9 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameFamilyNameFollowsTable,
                 database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:follows",
-                "object",
+                JoinOn.SUBJECT,
                 "wsdbm:likes",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable, actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable);
     }
@@ -201,33 +202,33 @@ public class JoinServiceTest {
                 database.tables().get("wsdbm:userId").toComplex(),
                 database.tables().get("foaf:givenName").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "foaf:givenName",
-                "subject");
+                JoinOn.SUBJECT);
 
         ComplexTable userIdGivenNameFamilyNameTable = joinService.hashJoin(
                 userIdGivenNameTable,
                 database.tables().get("foaf:familyName").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "foaf:familyName",
-                "subject");
+                JoinOn.SUBJECT);
 
         ComplexTable userIdGivenNameFamilyNameFollowsTable = joinService.hashJoin(
                 userIdGivenNameFamilyNameTable,
                 database.tables().get("wsdbm:follows").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "wsdbm:follows",
-                "subject");
+                JoinOn.SUBJECT);
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.hashJoin(
                 userIdGivenNameFamilyNameTable,
                 userIdGivenNameFamilyNameFollowsTable,
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "wsdbm:userId",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
 
@@ -265,9 +266,9 @@ public class JoinServiceTest {
                 database.tables().get("wsdbm:userId").toComplex(),
                 database.tables().get("foaf:givenName").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "foaf:givenName",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameTable, actualJoinedUserIdGivenNameTable);
 
@@ -303,9 +304,9 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameTable,
                 database.tables().get("foaf:familyName").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "foaf:familyName",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameTable, actualJoinedUserIdGivenNameFamilyNameTable);
 
@@ -338,9 +339,9 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameFamilyNameTable,
                 database.tables().get("wsdbm:follows").toComplex(),
                 "wsdbm:userId",
-                "subject",
+                JoinOn.SUBJECT,
                 "wsdbm:follows",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
 
@@ -369,9 +370,9 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameFamilyNameFollowsTable,
                 database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:follows",
-                "object",
+                JoinOn.OBJECT,
                 "wsdbm:likes",
-                "subject");
+                JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable, actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable);
     }
