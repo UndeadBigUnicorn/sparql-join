@@ -5,6 +5,10 @@ import uni.freiburg.sparqljoin.model.db.Item;
 import java.util.Comparator;
 import java.util.HashMap;
 
+/**
+ * @param subject RDF subject
+ * @param values HashMap with (key = RDF property, value = (RDF subject (the same as above), RDF object))
+ */
 public record JoinedItems(long subject, HashMap<String, Item<Integer>> values){
     @Override
     public boolean equals(Object obj) {

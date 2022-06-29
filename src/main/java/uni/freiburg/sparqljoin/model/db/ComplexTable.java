@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 /**
  * Table that holds multiple properties with complex subject-object property values
+ * See SimpleTable.toComplex() for how this works.
  */
 public class ComplexTable {
 
