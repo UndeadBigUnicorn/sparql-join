@@ -8,6 +8,7 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import uni.freiburg.sparqljoin.join.JoinOn;
 import uni.freiburg.sparqljoin.model.db.ComplexTable;
 import uni.freiburg.sparqljoin.model.db.Database;
 import uni.freiburg.sparqljoin.service.DataLoaderService;
@@ -69,23 +70,23 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 database.tables().get("wsdbm:follows").toComplex(),
                 database.tables().get("wsdbm:friendOf").toComplex(),
                 "wsdbm:follows",
-                "object",
+                JoinOn.OBJECT,
                 "wsdbm:friendOf",
-                "subject");
+                JoinOn.SUBJECT);
         ComplexTable followsFriendsLikesTable = joinService.hashJoin(
                 followsFriendsTable,
                 database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:friendOf",
-                "object",
+                JoinOn.OBJECT,
                 "wsdbm:likes",
-                "subject");
+                JoinOn.SUBJECT);
         ComplexTable joinedTable = joinService.hashJoin(
                 followsFriendsLikesTable,
                 database.tables().get("rev:hasReview").toComplex(),
                 "wsdbm:likes",
-                "object",
+                JoinOn.OBJECT,
                 "rev:hasReview",
-                "subject");
+                JoinOn.SUBJECT);
         LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
         return joinedTable;
     }
@@ -95,23 +96,23 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 database.tables().get("wsdbm:follows").toComplex(),
                 database.tables().get("wsdbm:friendOf").toComplex(),
                 "wsdbm:follows",
-                "object",
+                JoinOn.OBJECT,
                 "wsdbm:friendOf",
-                "subject");
+                JoinOn.SUBJECT);
         ComplexTable followsFriendsLikesTable = joinService.sortMergeJoin(
                 followsFriendsTable,
                 database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:friendOf",
-                "object",
+                JoinOn.OBJECT,
                 "wsdbm:likes",
-                "subject");
+                JoinOn.SUBJECT);
         ComplexTable joinedTable = joinService.sortMergeJoin(
                 followsFriendsLikesTable,
                 database.tables().get("rev:hasReview").toComplex(),
                 "wsdbm:likes",
-                "object",
+                JoinOn.OBJECT,
                 "rev:hasReview",
-                "subject");
+                JoinOn.SUBJECT);
         LOG.info("Sort-Merge joined table size: {}", joinedTable.getValues().size());
         return joinedTable;
     }

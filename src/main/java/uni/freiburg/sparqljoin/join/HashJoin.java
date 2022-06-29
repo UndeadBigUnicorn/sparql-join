@@ -23,14 +23,14 @@ public class HashJoin implements AbstractJoin {
      * @return         build output - Hash Table
      */
     @Override
-    public HashJoinBuildOutput build(ComplexTable table, String property, String joinOn) {
+    public HashJoinBuildOutput build(ComplexTable table, String property, JoinOn joinOn) {
         HashMap<Long, List<JoinedItems>> buildOutput = new HashMap<>();
         table.getValues().forEach(properties -> {
             if (!properties.values().containsKey(property)) {
                 return;
             }
             Item<Integer> item = properties.values().get(property);
-            long key = joinOn.equals("subject") ? item.subject() : item.object();
+            long key = joinOn == JoinOn.SUBJECT ? item.subject() : item.object();
             long hashed = Hasher.hash(key);
             if (buildOutput.containsKey(hashed)) {
                 List<JoinedItems> list = buildOutput.get(hashed);
@@ -60,8 +60,8 @@ public class HashJoin implements AbstractJoin {
      */
     @Override
     public ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
-                              String joinPropertyR, String joinOnR,
-                              String joinPropertyS, String joinOnS) {
+                              String joinPropertyR, JoinOn joinOnR,
+                              String joinPropertyS, JoinOn joinOnS) {
         HashMap<Long, List<JoinedItems>> hashJoinPartition = ((HashJoinBuildOutput) partition).getPartition();
         // create new dictionary for merge
         Dictionary referenceTableDictionary = R.getDictionary();
@@ -84,8 +84,8 @@ public class HashJoin implements AbstractJoin {
                     }
                     Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
                     // check if join key of the property value in the partition is equal to the join key of the prob item
-                    long referenceJoinKey = joinOnR.equals("subject") ? referenceItem.subject() : referenceItem.object();
-                    long probeJoinKey = joinOnS.equals("subject") ? probeItem.subject() : probeItem.object();
+                    long referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
+                    long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
                         mergeTuples(joinedItems, partitionedItems, probeItems, referenceTableDictionary, probeTableDictionary);
                     }

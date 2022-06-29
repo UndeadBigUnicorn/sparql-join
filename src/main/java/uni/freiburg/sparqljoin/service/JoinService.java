@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uni.freiburg.sparqljoin.join.AbstractJoin;
 import uni.freiburg.sparqljoin.join.HashJoin;
+import uni.freiburg.sparqljoin.join.JoinOn;
 import uni.freiburg.sparqljoin.join.SortMergeJoin;
 import uni.freiburg.sparqljoin.model.db.ComplexTable;
 import uni.freiburg.sparqljoin.util.Performance;
@@ -25,8 +26,8 @@ public class JoinService {
      * @return               joined table
      */
     public ComplexTable hashJoin(ComplexTable R, ComplexTable S,
-                                 String joinPropertyR, String joinOnR,
-                                 String joinPropertyS, String joinOnS) {
+                                 String joinPropertyR, JoinOn joinOnR,
+                                 String joinPropertyS, JoinOn joinOnS) {
         return join(new HashJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
     }
 
@@ -41,8 +42,8 @@ public class JoinService {
      * @return               joined table
      */
     public ComplexTable sortMergeJoin(ComplexTable R, ComplexTable S,
-                                 String joinPropertyR, String joinOnR,
-                                 String joinPropertyS, String joinOnS) {
+                                 String joinPropertyR, JoinOn joinOnR,
+                                 String joinPropertyS, JoinOn joinOnS) {
         return join(new SortMergeJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
     }
 
@@ -58,8 +59,8 @@ public class JoinService {
      * @return              joined table
      */
     private ComplexTable join(AbstractJoin joiner, ComplexTable R, ComplexTable S,
-                              String joinPropertyR, String joinOnR,
-                              String joinPropertyS, String joinOnS) {
+                              String joinPropertyR, JoinOn joinOnR,
+                              String joinPropertyS, JoinOn joinOnS) {
         LOG.debug("Joining table '{}' on '{}'.{} = '{}'.{} ...",
                 R.getProperties(), joinPropertyR, joinOnR, joinPropertyS, joinOnS);
         ComplexTable joinedTable = Performance.measure(() ->

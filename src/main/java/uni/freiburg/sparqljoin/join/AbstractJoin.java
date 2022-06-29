@@ -25,8 +25,8 @@ public interface AbstractJoin {
      * @return               new joined table
      */
     default ComplexTable join(ComplexTable R, ComplexTable S,
-                              String joinPropertyR, String joinOnR,
-                              String joinPropertyS, String joinOnS) {
+                              String joinPropertyR, JoinOn joinOnR,
+                              String joinPropertyS, JoinOn joinOnS) {
         BuildOutput output = build(R, joinPropertyR, joinOnR);
         return probe(output, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
     }
@@ -38,7 +38,7 @@ public interface AbstractJoin {
      * @param joinOn   property field to join on
      * @returns        build output
      */
-    BuildOutput build(ComplexTable table, String property, String joinOn);
+    BuildOutput build(ComplexTable table, String property, JoinOn joinOn);
 
     /**
      * Probe phase of join
@@ -52,8 +52,8 @@ public interface AbstractJoin {
      * @returns              joined values in new table
      */
     ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
-                       String joinPropertyR, String joinOnR,
-                       String joinPropertyS, String joinOnS);
+                       String joinPropertyR, JoinOn joinOnR,
+                       String joinPropertyS, JoinOn joinOnS);
 
 
     /**

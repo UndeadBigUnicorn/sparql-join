@@ -27,8 +27,8 @@ public class SortMergeJoin implements AbstractJoin {
      */
     @Override
     public ComplexTable join(ComplexTable R, ComplexTable S,
-                             String joinPropertyR, String joinOnR,
-                             String joinPropertyS, String joinOnS) {
+                             String joinPropertyR, JoinOn joinOnR,
+                             String joinPropertyS, JoinOn joinOnS) {
         MergeJoinBuildOutput sortedR = (MergeJoinBuildOutput) build(R, joinPropertyR, joinOnR);
         MergeJoinBuildOutput sortedS = (MergeJoinBuildOutput) build(S, joinPropertyS, joinOnS);
         MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput(sortedR.getValuesR(), sortedS.getValuesR());
@@ -43,7 +43,7 @@ public class SortMergeJoin implements AbstractJoin {
      * @return         sorted table values
      */
     @Override
-    public BuildOutput build(ComplexTable table, String property, String joinOn) {
+    public BuildOutput build(ComplexTable table, String property, JoinOn joinOn) {
         List<JoinedItems> values = table.getValues();
         values.sort(new JoinedItems.JoinedItemsComparator(property, joinOn));
         return new MergeJoinBuildOutput(values);
@@ -62,8 +62,8 @@ public class SortMergeJoin implements AbstractJoin {
      */
     @Override
     public ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
-                              String joinPropertyR, String joinOnR,
-                              String joinPropertyS, String joinOnS) {
+                              String joinPropertyR, JoinOn joinOnR,
+                              String joinPropertyS, JoinOn joinOnS) {
         MergeJoinBuildOutput buildOutput = (MergeJoinBuildOutput) partition;
         List<JoinedItems> referenceValues = buildOutput.getValuesR();
         List<JoinedItems> probeValues = buildOutput.getValuesS();
@@ -82,8 +82,8 @@ public class SortMergeJoin implements AbstractJoin {
             JoinedItems probeItems = probeValues.get(j);
             Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
 
-            long propertyJoinKey = joinOnR.equals("subject") ? referenceItem.subject() : referenceItem.object();
-            long probeJoinKey = joinOnS.equals("subject") ? probeItem.subject() : probeItem.object();
+            long propertyJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
+            long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
             if (propertyJoinKey > probeJoinKey) {
                 j++;
             }
@@ -97,7 +97,7 @@ public class SortMergeJoin implements AbstractJoin {
                 while (jPrime < probeValues.size()) {
                     JoinedItems probeItemsNext = probeValues.get(jPrime);
                     Item<Integer> probeItemNext = probeItemsNext.values().get(joinPropertyS);
-                    long probeJoinKeyNext = joinOnS.equals("subject") ? probeItemNext.subject() : probeItemNext.object();
+                    long probeJoinKeyNext = joinOnS == JoinOn.SUBJECT ? probeItemNext.subject() : probeItemNext.object();
                     if (propertyJoinKey == probeJoinKeyNext) {
                         mergeTuples(joinedItems, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
                         jPrime++;
@@ -111,7 +111,7 @@ public class SortMergeJoin implements AbstractJoin {
                 while (iPrime < referenceValues.size()) {
                     JoinedItems referenceItemsNext = referenceValues.get(iPrime);
                     Item<Integer> referenceItemNext = referenceItemsNext.values().get(joinPropertyR);
-                    long referenceJoinKeyNext = joinOnR.equals("subject") ? referenceItemNext.subject() : referenceItemNext.object();
+                    long referenceJoinKeyNext = joinOnR == JoinOn.SUBJECT ? referenceItemNext.subject() : referenceItemNext.object();
                     if (referenceJoinKeyNext == probeJoinKey) {
                         mergeTuples(joinedItems, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
                         iPrime++;
