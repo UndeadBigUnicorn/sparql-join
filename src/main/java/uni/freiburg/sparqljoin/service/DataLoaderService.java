@@ -10,6 +10,8 @@ import uni.freiburg.sparqljoin.model.parser.Triplet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
@@ -44,9 +46,35 @@ public class DataLoaderService {
      * @param line  to parse
      */
     private Triplet parseTriplet(final String line) {
-        List<String> tokens = List.of(line.split("\t"));
+        List<String> tokens = new ArrayList<>(List.of(line.split("\t")));
         // object   property    subject .
         assert tokens.size() == 3;
+        // 10M dataset looks different. It contains links instead of domain:element mapping
+        if (tokens.get(0).startsWith("<http")) {
+            // transform each token from http...domain/element format to domain:element
+            for (int i = 0; i < tokens.size(); i++) {
+                String token = tokens.get(i);
+                List<String> domains = List.of(token.split("/"));
+                String domain = domains.get(domains.size()-1).replaceAll(">", "");
+                // needed value could be in last domain with #begin
+                if (domain.contains("#")) {
+                    domains = List.of(domain.split("#"));
+                    domain = domains.get(domains.size()-1);
+                }
+                // small hash to indicate that it is an object
+                if (token.contains("wsdbm")) {
+                    domain = "wsdbm:" + domain;
+                }
+                if (token.contains("foaf")) {
+                    domain = "foaf:" + domain;
+                }
+                if (token.contains("rev")) {
+                    domain = "rev:" + domain;
+                }
+                tokens.set(i, domain);
+            }
+
+        }
         return Triplet.builder()
                 .subject(tokens.get(0))
                 .property(tokens.get(1))

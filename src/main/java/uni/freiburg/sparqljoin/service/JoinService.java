@@ -63,7 +63,7 @@ public class JoinService {
         LOG.debug("Joining table '{}' on '{}'.{} = '{}'.{} ...",
                 R.getProperties(), joinPropertyR, joinOnR, joinPropertyS, joinOnS);
         ComplexTable joinedTable = Performance.measure(() ->
-                joiner.join(R, S, joinPropertyR, joinOnR, joinPropertyS,  joinOnS), String.format("%s Join", joiner.getClass().getSimpleName())
+                joiner.join(R, S, joinPropertyR, joinOnR, joinPropertyS,  joinOnS), String.format("%s", joiner.getClass().getSimpleName())
         );
         LOG.debug("Table 1 length: {}", R.getValues().size());
         LOG.debug("Table 2 length: {}", S.getValues().size());

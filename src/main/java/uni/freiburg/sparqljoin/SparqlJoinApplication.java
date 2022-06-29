@@ -44,8 +44,8 @@ public class SparqlJoinApplication implements CommandLineRunner {
     public boolean perform() {
         // a) load data, build dictionaries
         Database database = Performance.measure(this::loadData, "Load Data");
-        // b) join algorithms
-        Performance.measure(() -> this.joins(database), "Join Algorithms");
+        // b), c) join algorithms simulations
+        Performance.measure(() -> this.simulation(database), "Join Simulation");
         return true;
     }
 
@@ -53,33 +53,66 @@ public class SparqlJoinApplication implements CommandLineRunner {
         return dataLoaderService.load(datasetPath);
     }
 
-    public boolean joins(Database database) {
-        ComplexTable joinedTable = joinService.hashJoin(
-                database.tables().get("wsdbm:userId").toComplex(),
-                database.tables().get("foaf:givenName").toComplex(),
-                "wsdbm:userId",
-                "subject",
-                "foaf:givenName",
-                "subject");
-        joinService.hashJoin(
-                joinedTable,
-                database.tables().get("foaf:familyName").toComplex(),
-                "wsdbm:userId",
-                "subject",
-                "foaf:familyName",
-                "subject");
-        joinService.hashJoin(database.tables().get("wsdbm:follows").toComplex(),
-                database.tables().get("wsdbm:likes").toComplex(),
-                "wsdbm:follows",
-                "object",
-                "wsdbm:likes",
-                "subject");
-        joinService.sortMergeJoin(database.tables().get("wsdbm:follows").toComplex(),
-                database.tables().get("wsdbm:likes").toComplex(),
-                "wsdbm:follows",
-                "object",
-                "wsdbm:likes",
-                "subject");
+    public boolean simulation(Database database) {
+        LOG.info("Simulation begin...");
+        // hash join
+        LOG.info("****** HASH JOIN ******");
+        Performance.measure(() -> hashJoin(database), "Hash Join Simulation");
+        // sort merge simulation
+        LOG.info("****** SORT-MERGE JOIN ******");
+        Performance.measure(() -> sortMergeJoin(database), "Sort-Merge Join Simulation");
         return true;
+    }
+
+    public ComplexTable hashJoin(Database database) {
+        ComplexTable followsFriendsTable = joinService.hashJoin(
+                database.tables().get("wsdbm:follows").toComplex(),
+                database.tables().get("wsdbm:friendOf").toComplex(),
+                "wsdbm:follows",
+                "object",
+                "wsdbm:friendOf",
+                "subject");
+        ComplexTable followsFriendsLikesTable = joinService.hashJoin(
+                followsFriendsTable,
+                database.tables().get("wsdbm:likes").toComplex(),
+                "wsdbm:friendOf",
+                "object",
+                "wsdbm:likes",
+                "subject");
+        ComplexTable joinedTable = joinService.hashJoin(
+                followsFriendsLikesTable,
+                database.tables().get("rev:hasReview").toComplex(),
+                "wsdbm:likes",
+                "object",
+                "rev:hasReview",
+                "subject");
+        LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
+        return joinedTable;
+    }
+
+    public ComplexTable sortMergeJoin(Database database) {
+        ComplexTable followsFriendsTable = joinService.sortMergeJoin(
+                database.tables().get("wsdbm:follows").toComplex(),
+                database.tables().get("wsdbm:friendOf").toComplex(),
+                "wsdbm:follows",
+                "object",
+                "wsdbm:friendOf",
+                "subject");
+        ComplexTable followsFriendsLikesTable = joinService.sortMergeJoin(
+                followsFriendsTable,
+                database.tables().get("wsdbm:likes").toComplex(),
+                "wsdbm:friendOf",
+                "object",
+                "wsdbm:likes",
+                "subject");
+        ComplexTable joinedTable = joinService.sortMergeJoin(
+                followsFriendsLikesTable,
+                database.tables().get("rev:hasReview").toComplex(),
+                "wsdbm:likes",
+                "object",
+                "rev:hasReview",
+                "subject");
+        LOG.info("Sort-Merge joined table size: {}", joinedTable.getValues().size());
+        return joinedTable;
     }
 }
