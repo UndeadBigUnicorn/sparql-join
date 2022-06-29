@@ -103,8 +103,12 @@ public class DataLoaderService {
     }
 
     /**
-     * Extract integer representation from string value
-     * @param value to extract key from
+     * Extracts the integer representation from a value.
+     * Because integer comparisons are faster than string comparisons, we will assign a unique integer to each unique
+     * string value and store it in dict.
+     * If value is an integer wrapped inside a string, convert it to integer.
+     * @param value Value to extract the key from
+     * @param dict The dictionary where the mapping between string and int will be stored
      * @return integer representation
      */
     private long extractKey(String value, Dictionary dict) {
@@ -112,7 +116,7 @@ public class DataLoaderService {
             case "string" ->
                     dict.put(value);
             case "int" -> Integer.parseInt(value);
-            case "object" -> Integer.parseInt(value.replaceAll("\\D", ""));
+            case "object" -> Integer.parseInt(value.replaceAll("\\D", "")); // TODO may this cause an integer value collision? If not, add a comment why
             default -> throw new IllegalStateException("Unexpected value: " + typeOf(value));
         };
     }

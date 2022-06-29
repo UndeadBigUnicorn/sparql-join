@@ -20,7 +20,7 @@ public class Dictionary {
     }
 
     /**
-     * Put value into the dictionary and get unique integer instead
+     * Put value into the dictionary (if not exists) and return unique integer representation
      * @param value to save
      * @return unique integer that represent putted value
      */
