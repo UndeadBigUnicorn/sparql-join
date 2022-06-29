@@ -154,7 +154,7 @@ public class JoinServiceTest {
                 actualJoinedUserIdGivenNameFamilyNameFollowsTable,
                 database.tables().get("wsdbm:likes").toComplex(),
                 "wsdbm:follows",
-                JoinOn.SUBJECT,
+                JoinOn.OBJECT,
                 "wsdbm:likes",
                 JoinOn.SUBJECT);
 
