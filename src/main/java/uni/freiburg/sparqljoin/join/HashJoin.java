@@ -14,30 +14,29 @@ public class HashJoin implements AbstractJoin {
 
     /**
      * Build a hash map partition over the join key:
-     * for each item in the table
-     * take a hash function of the join key and put value to the hash table partition
+     * for each item in relation R, calculate the hash of the join key and append the JoinedItems instance to the partition corresponding to the hashed join key
      *
-     * @param table    build input
+     * @param table    input relation
      * @param property property value to join on name of the property to join on from the reference table
      * @param joinOn   property field to join on
-     * @return         build output - Hash Table
+     * @return         build output - HashMap with key = hashed join key, value = list of JoinedItems
      */
     @Override
     public HashJoinBuildOutput build(ComplexTable table, String property, JoinOn joinOn) {
         HashMap<Long, List<JoinedItems>> buildOutput = new HashMap<>();
-        table.getValues().forEach(properties -> {
-            if (!properties.values().containsKey(property)) {
+        table.getValues().forEach(joinedItems -> {
+            if (!joinedItems.values().containsKey(property)) {
                 return;
             }
-            Item<Integer> item = properties.values().get(property);
+            Item<Integer> item = joinedItems.values().get(property);
             long key = joinOn == JoinOn.SUBJECT ? item.subject() : item.object();
-            long hashed = Hasher.hash(key);
-            if (buildOutput.containsKey(hashed)) {
-                List<JoinedItems> list = buildOutput.get(hashed);
-                list.add(properties);
-                buildOutput.put(hashed, list);
+            long hashedKey = Hasher.hash(key);
+            if (buildOutput.containsKey(hashedKey)) {
+                List<JoinedItems> list = buildOutput.get(hashedKey);
+                list.add(joinedItems);
+                buildOutput.put(hashedKey, list); // TODO is this required? buildOutput.get() returns a reference
             } else {
-                buildOutput.put(hashed, new ArrayList<>(List.of(properties)));
+                buildOutput.put(hashedKey, new ArrayList<>(List.of(joinedItems)));
             }
         });
         return new HashJoinBuildOutput(buildOutput);
@@ -49,7 +48,7 @@ public class HashJoin implements AbstractJoin {
      * take hash of the join key subject
      * find matching bucket hash map partition
      * compare and join items in the matching bucket
-     * @param partition      partition from the build phase
+     * @param partitions     partitions from the build phase
      * @param R              R relation table for the reference
      * @param S              S relation table to join
      * @param joinPropertyR  name of the property to join on from table R
@@ -59,44 +58,52 @@ public class HashJoin implements AbstractJoin {
      * @return               new joined table
      */
     @Override
-    public ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
+    public ComplexTable probe(BuildOutput partitions, ComplexTable R, ComplexTable S,
                               String joinPropertyR, JoinOn joinOnR,
                               String joinPropertyS, JoinOn joinOnS) {
-        HashMap<Long, List<JoinedItems>> hashJoinPartition = ((HashJoinBuildOutput) partition).getPartition();
-        // create new dictionary for merge
+        HashMap<Long, List<JoinedItems>> hashedReferenceTablePartitions = ((HashJoinBuildOutput) partitions).getPartition();
+
         Dictionary referenceTableDictionary = R.getDictionary();
         Dictionary probeTableDictionary = S.getDictionary();
-        List<JoinedItems> joinedItems = new ArrayList<>();
+        List<JoinedItems> joinedItems = new ArrayList<>(); // Output list
+
+        // For each tuple in S...
         S.getValues().forEach(probeItems -> {
-            long hashed = Hasher.hash(probeItems.subject());
-            // hash over join key matches existing bucket:
-            // check items in the bucket if the key matches exactly
-            if (hashJoinPartition.containsKey(hashed)) {
-                for (JoinedItems partitionedItems : hashJoinPartition.get(hashed)) {
-                    // each item value contains pairs of subject - object
-                    // get join property
-                    if (!partitionedItems.values().containsKey(joinPropertyR)) {
-                        return;
+            long hashedSKey = Hasher.hash(probeItems.subject()); // TODO why don't we check joinOnS here?
+
+            // ... look up its join key in the hash table of R
+            if (hashedReferenceTablePartitions.containsKey(hashedSKey)) {
+                // A match is found. Output the combined tuple.
+                for (JoinedItems matchingReferenceTableItems : hashedReferenceTablePartitions.get(hashedSKey)) {
+                    if (!matchingReferenceTableItems.values().containsKey(joinPropertyR)) {
+                        return; // Discard this S tuple
                     }
-                    Item<Integer> referenceItem = partitionedItems.values().get(joinPropertyR);
                     if (!probeItems.values().containsKey(joinPropertyS)) {
-                        return;
+                        return; // Discard this S tuple
                     }
+
+                    // Get join property
+                    Item<Integer> referenceItem = matchingReferenceTableItems.values().get(joinPropertyR);
                     Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
-                    // check if join key of the property value in the partition is equal to the join key of the prob item
+
+                    // Check if there is a hash collision
                     long referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
                     long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
-                        mergeTuples(joinedItems, partitionedItems, probeItems, referenceTableDictionary, probeTableDictionary);
+                        // No hash collision
+                        mergeTuples(joinedItems, matchingReferenceTableItems, probeItems, referenceTableDictionary, probeTableDictionary);
                     }
                 }
             }
         });
 
-        // concat properties of 2 tables
+        // Concatenate properties of the two tables
+        // Use a set to remove duplicates
         Set<String> set = new LinkedHashSet<>(R.getProperties());
         set.addAll(S.getProperties());
+
         List<String> properties = new ArrayList<>(set);
+
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }
 
