@@ -1,5 +1,8 @@
 package uni.freiburg.sparqljoin.join;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import uni.freiburg.sparqljoin.SparqlJoinApplication;
 import uni.freiburg.sparqljoin.model.db.*;
 import uni.freiburg.sparqljoin.model.db.Dictionary;
 import uni.freiburg.sparqljoin.model.join.*;
@@ -11,6 +14,7 @@ import java.util.*;
  * This class implements hash join algorithm
  */
 public class HashJoin implements AbstractJoin {
+    private static final Logger LOG = LoggerFactory.getLogger(HashJoin.class);
 
     /**
      * Build a hash map partition over the join key:
@@ -23,6 +27,8 @@ public class HashJoin implements AbstractJoin {
      */
     @Override
     public HashJoinBuildOutput build(ComplexTable table, String property, JoinOn joinOn) {
+        LOG.info("Starting build phase");
+
         HashMap<Long, List<JoinedItems>> buildOutput = new HashMap<>();
         table.getValues().forEach(joinedItems -> {
             if (!joinedItems.values().containsKey(property)) {
@@ -61,6 +67,8 @@ public class HashJoin implements AbstractJoin {
     public ComplexTable probe(BuildOutput partitions, ComplexTable R, ComplexTable S,
                               String joinPropertyR, JoinOn joinOnR,
                               String joinPropertyS, JoinOn joinOnS) {
+        LOG.info("Starting probe phase");
+
         HashMap<Long, List<JoinedItems>> hashedReferenceTablePartitions = ((HashJoinBuildOutput) partitions).getPartition();
 
         Dictionary referenceTableDictionary = R.getDictionary();
