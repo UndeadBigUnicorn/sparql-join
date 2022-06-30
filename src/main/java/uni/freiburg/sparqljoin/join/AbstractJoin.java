@@ -15,14 +15,15 @@ import java.util.List;
 public interface AbstractJoin {
 
     /**
-     * Join 2 table
-     * @param R              R relation join table
-     * @param S              S relation join table
-     * @param joinPropertyR  name of the property to join on from table R
-     * @param joinOnR        join field in property from R
-     * @param joinPropertyS  name of the property to join on from table S
-     * @param joinOnS        join field in property from S
-     * @return               new joined table
+     * Joins two tables
+     *
+     * @param R             R relation join table
+     * @param S             S relation join table
+     * @param joinPropertyR name of the property to join on from table R
+     * @param joinOnR       join field in property from R
+     * @param joinPropertyS name of the property to join on from table S
+     * @param joinOnS       join field in property from S
+     * @return new joined table
      */
     default ComplexTable join(ComplexTable R, ComplexTable S,
                               String joinPropertyR, JoinOn joinOnR,
@@ -33,38 +34,41 @@ public interface AbstractJoin {
 
     /**
      * Build phase of join
+     *
      * @param table    build input
      * @param property property value to join on name of the property to join on from the reference table
      * @param joinOn   property field to join on
-     * @returns        build output
+     * @return build output
      */
     BuildOutput build(ComplexTable table, String property, JoinOn joinOn);
 
     /**
-     * Probe phase of join
-     * @param partition      partition from the build phase
-     * @param R              R relation table for the reference
-     * @param S              S relation table to join
-     * @param joinPropertyR  name of the property to join on from table R
-     * @param joinOnR        join field in property from R
-     * @param joinPropertyS  name of the property to join on from table S
-     * @param joinOnS        join field in property from S
-     * @returns              joined values in new table
+     * Probe phase of the join
+     *
+     * @param buildOutput       output of the build phase
+     * @param buildRelation     build relation table to join
+     * @param probeRelation     probe relation table to join
+     * @param buildJoinProperty name of the property to join on from the build relation
+     * @param buildJoinOn       join field in the property from the build relation
+     * @param probeJoinProperty name of the property to join on from the probe relation
+     * @param probeJoinOn       join field in the property from the probe relation
+     * @return new joined table
      */
-    ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
-                       String joinPropertyR, JoinOn joinOnR,
-                       String joinPropertyS, JoinOn joinOnS);
+    ComplexTable probe(BuildOutput buildOutput, ComplexTable buildRelation, ComplexTable probeRelation,
+                       String buildJoinProperty, JoinOn buildJoinOn,
+                       String probeJoinProperty, JoinOn probeJoinOn);
 
 
     /**
-     * Merge 2 tuples into a single with all properties
-     * @param joinedItems               Collection of joined items to add new tuple
-     * @param itemsR                    items from R relation
-     * @param itemsS                    items from S relation
-     * @param dictionaryR               R table dictionary
-     * @param dictionaryS               S table dictionary
+     * Merge 2 tuples into a single with all properties. Merges the dictionaries (resulting one is dictionaryR).
+     *
+     * @param joinedItems Collection of joined items to add new tuple
+     * @param itemsR      items from R relation
+     * @param itemsS      items from S relation
+     * @param dictionaryR R table dictionary
+     * @param dictionaryS S table dictionary
      */
-    default void mergeTuples(List<JoinedItems> joinedItems, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
+    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
         // clone reference item values to avoid overwriting values by reference
         HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) itemsR.values().clone();
         // add new property values
