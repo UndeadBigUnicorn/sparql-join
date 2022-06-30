@@ -48,13 +48,13 @@ public class HashJoin implements AbstractJoin {
      * take hash of the join key subject
      * find matching bucket hash map partition
      * compare and join items in the matching bucket
-     * @param partitions     partitions from the build phase
-     * @param R              R relation table for the reference
-     * @param S              S relation table to join
-     * @param joinPropertyR  name of the property to join on from table R
-     * @param joinOnR        join field in property from R
-     * @param joinPropertyS  name of the property to join on from table S
-     * @param joinOnS        join field in property from S
+     * @param partitions     build relation partitions from the build phase
+     * @param R              R relation table - build relation
+     * @param S              S relation table - probe relation
+     * @param joinPropertyR  name of the property to join on from table R (build relation)
+     * @param joinOnR        join field in property from R (build relation)
+     * @param joinPropertyS  name of the property to join on from table S (probe relation)
+     * @param joinOnS        join field in property from S (probe relation)
      * @return               new joined table
      */
     @Override
@@ -107,7 +107,7 @@ public class HashJoin implements AbstractJoin {
         Set<String> set = new LinkedHashSet<>(R.getProperties());
         set.addAll(S.getProperties());
 
-        List<String> properties = new ArrayList<>(set);
+        Set<String> properties = new LinkedHashSet<>(set);
 
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }

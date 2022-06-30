@@ -31,7 +31,7 @@ public class JoinServiceTest {
         expectedJoinedUserIdGivenNameDict.put("LUKE");
         expectedJoinedUserIdGivenNameDict.put("HAN");
         expectedJoinedUserIdGivenNameDict.put("LEA");
-        ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
+        ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
         joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
@@ -65,7 +65,7 @@ public class JoinServiceTest {
         expectedJoinedUserIdGivenNameFamilyNameDict.put("SKYWALKER");
         expectedJoinedUserIdGivenNameFamilyNameDict.put("SOLO");
         expectedJoinedUserIdGivenNameFamilyNameDict.put("ORGANA");
-        ComplexTable expectedJoinedUserIdGivenNameFamilyNameTable = new ComplexTable(new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName")),
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName")),
                 expectedJoinedUserIdGivenNameFamilyNameDict);
 
         joinedValue1 = new HashMap<>();
@@ -97,7 +97,7 @@ public class JoinServiceTest {
         // join userId, givenName, familyName on follows
 
         ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(
-                new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
+                new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
                 expectedJoinedUserIdGivenNameFamilyNameTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
@@ -132,7 +132,7 @@ public class JoinServiceTest {
         // join userId, givenName, familyName, follows on likes
 
         ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable = new ComplexTable(
-                new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows", "wsdbm:likes")),
+                new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows", "wsdbm:likes")),
                 expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
@@ -177,7 +177,7 @@ public class JoinServiceTest {
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SKYWALKER");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SOLO");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("ORGANA");
-        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
                 expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
@@ -247,7 +247,7 @@ public class JoinServiceTest {
         expectedJoinedUserIdGivenNameDict.put("LUKE");
         expectedJoinedUserIdGivenNameDict.put("HAN");
         expectedJoinedUserIdGivenNameDict.put("LEA");
-        ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
+        ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
         joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
@@ -281,7 +281,7 @@ public class JoinServiceTest {
         expectedJoinedUserIdGivenNameFamilyNameDict.put("SKYWALKER");
         expectedJoinedUserIdGivenNameFamilyNameDict.put("SOLO");
         expectedJoinedUserIdGivenNameFamilyNameDict.put("ORGANA");
-        ComplexTable expectedJoinedUserIdGivenNameFamilyNameTable = new ComplexTable(new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName")),
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName")),
                 expectedJoinedUserIdGivenNameFamilyNameDict);
 
         joinedValue1 = new HashMap<>();
@@ -313,7 +313,7 @@ public class JoinServiceTest {
         // join userId, givenName, familyName on follows
 
         ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(
-                new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
+                new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
                 expectedJoinedUserIdGivenNameFamilyNameTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
@@ -348,7 +348,7 @@ public class JoinServiceTest {
         // join userId, givenName, familyName, follows on likes
 
         ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable = new ComplexTable(
-                new ArrayList<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows", "wsdbm:likes")),
+                new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows", "wsdbm:likes")),
                 expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary());
 
         joinedValue1 = new HashMap<>();

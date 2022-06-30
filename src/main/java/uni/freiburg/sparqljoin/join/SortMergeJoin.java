@@ -133,7 +133,7 @@ public class SortMergeJoin implements AbstractJoin {
         Set<String> set = new LinkedHashSet<>(R.getProperties());
         set.addAll(S.getProperties());
 
-        List<String> properties = new ArrayList<>(set);
+        Set<String> properties = new LinkedHashSet<>(set);
 
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }
