@@ -108,7 +108,7 @@ public class HashJoin implements AbstractJoin {
         Set<String> set = new LinkedHashSet<>(probeRelation.getProperties());
         set.addAll(buildRelation.getProperties());
 
-        List<String> properties = new ArrayList<>(set);
+        Set<String> properties = new LinkedHashSet<>(set);
 
         return new ComplexTable(properties, probeTableDictionary, new PropertyValues<>(joinedItems));
     }

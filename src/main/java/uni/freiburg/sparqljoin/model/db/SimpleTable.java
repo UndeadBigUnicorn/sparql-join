@@ -2,8 +2,8 @@ package uni.freiburg.sparqljoin.model.db;
 
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +70,6 @@ public class SimpleTable{
             itemMap.put(getProperty(), item);
             return new JoinedItems(item.subject(), itemMap);
         }).collect(Collectors.toList());
-        return new ComplexTable(new ArrayList<>(List.of(this.getProperty())), getDictionary(), new PropertyValues<>(values));
+        return new ComplexTable(new LinkedHashSet<>(List.of(this.getProperty())), getDictionary(), new PropertyValues<>(values));
     }
 }
