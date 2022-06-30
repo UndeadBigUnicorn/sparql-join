@@ -69,7 +69,12 @@ public class HashJoin implements AbstractJoin {
 
         // For each tuple in S...
         S.getValues().forEach(probeItems -> {
-            long hashedSKey = Hasher.hash(probeItems.subject()); // TODO why don't we check joinOnS here?
+            long hashedSKey;
+            if (joinOnS == JoinOn.SUBJECT) {
+                hashedSKey = Hasher.hash(probeItems.subject());
+            } else{
+                hashedSKey = Hasher.hash(probeItems.values().get(joinPropertyS).object());
+            }
 
             // ... look up its join key in the hash table of R
             if (hashedReferenceTablePartitions.containsKey(hashedSKey)) {
