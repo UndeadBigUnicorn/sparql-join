@@ -71,63 +71,70 @@ public class SortMergeJoin implements AbstractJoin {
         // create new dictionary for merge
         Dictionary referenceTableDictionary = R.getDictionary();
         Dictionary probeTableDictionary = S.getDictionary();
-        List<JoinedItems> joinedItems = new ArrayList<>();
+        List<JoinedItems> joinedItems = new ArrayList<>(); // Output list
 
-        int i = 0;
-        int j = 0;
+        int referenceRelIndex = 0;
+        int probeRelIndex = 0;
 
-        while(i < referenceValues.size() && j < probeValues.size()) {
-            JoinedItems referenceItems = referenceValues.get(i);
+        while(referenceRelIndex < referenceValues.size() && probeRelIndex < probeValues.size()) {
+            JoinedItems referenceItems = referenceValues.get(referenceRelIndex);
             Item<Integer> referenceItem = referenceItems.values().get(joinPropertyR);
-            JoinedItems probeItems = probeValues.get(j);
+            JoinedItems probeItems = probeValues.get(probeRelIndex);
             Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
 
-            long propertyJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
+            long referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
             long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
-            if (propertyJoinKey > probeJoinKey) {
-                j++;
+
+            // Forward pointers so that until a match is found
+            if (referenceJoinKey > probeJoinKey) {
+                probeRelIndex++;
             }
-            else if (propertyJoinKey < probeJoinKey){
-                i++;
+            else if (referenceJoinKey < probeJoinKey){
+                referenceRelIndex++;
             } else {
+                // Match is found
+
                 mergeTuples(joinedItems, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
 
                 // output further tuples that match with reference item
-                int jPrime = j+1;
-                while (jPrime < probeValues.size()) {
-                    JoinedItems probeItemsNext = probeValues.get(jPrime);
+                int probeRelIndexPrime = probeRelIndex + 1;
+                while (probeRelIndexPrime < probeValues.size()) {
+                    JoinedItems probeItemsNext = probeValues.get(probeRelIndexPrime);
                     Item<Integer> probeItemNext = probeItemsNext.values().get(joinPropertyS);
                     long probeJoinKeyNext = joinOnS == JoinOn.SUBJECT ? probeItemNext.subject() : probeItemNext.object();
-                    if (propertyJoinKey == probeJoinKeyNext) {
+                    if (referenceJoinKey == probeJoinKeyNext) {
                         mergeTuples(joinedItems, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
-                        jPrime++;
+                        probeRelIndexPrime++;
                     } else {
                         break;
                     }
                 }
 
                 // output further tuples that match with probe item
-                int iPrime = i+1;
-                while (iPrime < referenceValues.size()) {
-                    JoinedItems referenceItemsNext = referenceValues.get(iPrime);
+                int referenceRelIndexPrime = referenceRelIndex+1;
+                while (referenceRelIndexPrime < referenceValues.size()) {
+                    JoinedItems referenceItemsNext = referenceValues.get(referenceRelIndexPrime);
                     Item<Integer> referenceItemNext = referenceItemsNext.values().get(joinPropertyR);
                     long referenceJoinKeyNext = joinOnR == JoinOn.SUBJECT ? referenceItemNext.subject() : referenceItemNext.object();
                     if (referenceJoinKeyNext == probeJoinKey) {
                         mergeTuples(joinedItems, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
-                        iPrime++;
+                        referenceRelIndexPrime++;
                     } else {
                         break;
                     }
                 }
-                i++;
-                j++;
+                referenceRelIndex++;
+                probeRelIndex++;
             }
         }
 
-        // concat properties of 2 tables
+        // Concatenate properties of the two tables
+        // Use a set to remove duplicates
         Set<String> set = new LinkedHashSet<>(R.getProperties());
         set.addAll(S.getProperties());
+
         List<String> properties = new ArrayList<>(set);
+
         return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
     }
 
