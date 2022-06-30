@@ -57,14 +57,14 @@ public interface AbstractJoin {
 
 
     /**
-     * Merge 2 tuples into a single with all properties
+     * Merge 2 tuples into a single with all properties. Merge the dictionaries.
      * @param joinedItems               Collection of joined items to add new tuple
      * @param itemsR                    items from R relation
      * @param itemsS                    items from S relation
-     * @param dictionaryR               R table dictionary
+     * @param dictionaryR               R table dictionary. S dictionary items will be added here.
      * @param dictionaryS               S table dictionary
      */
-    default void mergeTuples(List<JoinedItems> joinedItems, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
+    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
         // clone reference item values to avoid overwriting values by reference
         HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) itemsR.values().clone();
         // add new property values
