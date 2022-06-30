@@ -94,7 +94,7 @@ public class SortMergeJoin implements AbstractJoin {
             } else {
                 // Match is found
 
-                mergeTuplesAndDictionaries(joinedItems, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
+                mergeTuples(joinedItems, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
 
                 // output further tuples that match with reference item
                 int probeRelIndexPrime = probeRelIndex + 1;
@@ -103,7 +103,7 @@ public class SortMergeJoin implements AbstractJoin {
                     Item<Integer> probeItemNext = probeItemsNext.values().get(joinPropertyS);
                     long probeJoinKeyNext = joinOnS == JoinOn.SUBJECT ? probeItemNext.subject() : probeItemNext.object();
                     if (referenceJoinKey == probeJoinKeyNext) {
-                        mergeTuplesAndDictionaries(joinedItems, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
+                        mergeTuples(joinedItems, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
                         probeRelIndexPrime++;
                     } else {
                         break;
@@ -117,7 +117,7 @@ public class SortMergeJoin implements AbstractJoin {
                     Item<Integer> referenceItemNext = referenceItemsNext.values().get(joinPropertyR);
                     long referenceJoinKeyNext = joinOnR == JoinOn.SUBJECT ? referenceItemNext.subject() : referenceItemNext.object();
                     if (referenceJoinKeyNext == probeJoinKey) {
-                        mergeTuplesAndDictionaries(joinedItems, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
+                        mergeTuples(joinedItems, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
                         referenceRelIndexPrime++;
                     } else {
                         break;
