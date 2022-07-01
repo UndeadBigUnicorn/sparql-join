@@ -71,6 +71,7 @@ public interface AbstractJoin {
         itemsS.values().forEach((property, propertyItem) -> {
             // object was a string -> put value into new dictionary, update item value index
             if (dictionaryS.containsKey(propertyItem.object())) {
+                // TODO the object might have also been a number - to do this reliably, we need a boolean variable for each subject/object that indicates whether a dictionary reference is meant or not. Alternatively, we could also insert integers into the dictionary as values.
                 values.put(property, new Item<>(
                         propertyItem.subject(),
                         (int) dictionaryR.put(dictionaryS.get(propertyItem.object()))

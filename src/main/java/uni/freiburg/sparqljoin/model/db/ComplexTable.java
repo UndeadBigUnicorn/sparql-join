@@ -42,11 +42,44 @@ public class ComplexTable {
     }
 
     /**
-     * Save value
-     * @param item to save
+     * Insert items, dictionary values must already exist
+     *
+     * @param items to save
      */
-    public void insert(JoinedItems item) {
-        this.items.put(item);
+    public void insert(JoinedItems items) {
+        this.items.put(items);
+
+        // Add properties if not exists
+        this.properties.addAll(items.values().keySet());
+    }
+
+    /**
+     * Insert items, adding missing dictionary entries
+     *
+     * @param items to save
+     */
+    public void insert(JoinedItems items, Dictionary dictionary) {
+        insert(items);
+
+        // Add dictionary entries if not exists
+        this.dictionary.insertValues(dictionary);
+    }
+
+    /**
+     * Adds the data of another ComplexTable into this one
+     *
+     * @param otherTable The other table
+     */
+    public void insertComplexTable(ComplexTable otherTable) {
+        for (JoinedItems item : otherTable.getValues()) {
+            this.items.put(item);
+
+            // Add properties if not exists
+            this.properties.addAll(item.values().keySet());
+        }
+
+        // Add missing dictionary entries
+        this.dictionary.insertValues(otherTable.getDictionary());
     }
 
     /**

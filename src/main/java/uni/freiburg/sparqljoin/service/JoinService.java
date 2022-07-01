@@ -3,10 +3,7 @@ package uni.freiburg.sparqljoin.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uni.freiburg.sparqljoin.join.AbstractJoin;
-import uni.freiburg.sparqljoin.join.HashJoin;
-import uni.freiburg.sparqljoin.join.JoinOn;
-import uni.freiburg.sparqljoin.join.SortMergeJoin;
+import uni.freiburg.sparqljoin.join.*;
 import uni.freiburg.sparqljoin.model.db.ComplexTable;
 import uni.freiburg.sparqljoin.util.Performance;
 
@@ -29,6 +26,22 @@ public class JoinService {
                                  String joinPropertyR, JoinOn joinOnR,
                                  String joinPropertyS, JoinOn joinOnS) {
         return join(new HashJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+    }
+
+    /**
+     * Join 2 tables by given property using parallel HashJoin algorithm
+     * @param R              R relation join table
+     * @param S              S relation join table
+     * @param joinPropertyR  property to join on from table R
+     * @param joinOnR        join field in property from R
+     * @param joinPropertyS  property to join on from table S
+     * @param joinOnS        join field in property from S
+     * @return               joined table
+     */
+    public ComplexTable parallelHashJoin(ComplexTable R, ComplexTable S,
+                                 String joinPropertyR, JoinOn joinOnR,
+                                 String joinPropertyS, JoinOn joinOnS) {
+        return join(new ParallelHashJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
     }
 
     /**
