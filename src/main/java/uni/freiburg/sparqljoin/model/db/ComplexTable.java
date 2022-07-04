@@ -62,7 +62,7 @@ public class ComplexTable {
         insert(items);
 
         // Add dictionary entries if not exists
-        this.dictionary.insertValues(dictionary);
+        this.dictionary.putAll(dictionary);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ComplexTable {
         }
 
         // Add missing dictionary entries
-        this.dictionary.insertValues(otherTable.getDictionary());
+        this.dictionary.putAll(otherTable.getDictionary());
     }
 
     /**

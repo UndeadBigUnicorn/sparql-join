@@ -32,13 +32,7 @@ public class ParallelHashJoin extends HashJoin {
 
     @Override
     public ComplexTable join(ComplexTable R, ComplexTable S, String joinPropertyR, JoinOn joinOnR, String joinPropertyS, JoinOn joinOnS) {
-        System.out.println("##### R input " + R.getDictionary().getValues());
-        System.out.println("##### S input " + S.getDictionary().getValues());
-        /*
-         * TODO problem with complex join test
-         * ##### R input {1=LUKE, 2=HAN, 3=LEA}
-         * ##### S input {1=SKYWALKER, 2=SOLO, 3=ORGANA}
-         */
+        // TODO clean code
 
         int numThreads = 1;
 
@@ -68,7 +62,7 @@ public class ParallelHashJoin extends HashJoin {
         // Combine build thread results
         HashJoinBuildOutput combinedBuildOutput = new HashJoinBuildOutput(new HashMap<>());
         for (HashJoinBuildOutput threadOutput : buildOutputs) {
-            combinedBuildOutput.getPartition().putAll(threadOutput.getPartition());
+            combinedBuildOutput.getPartition().putAll(threadOutput.getPartition()); //TODO merge strategy to prevent replacing, add to list at hash key
         }
 
         // Partition relation S across all threads for the probe phase
@@ -99,8 +93,6 @@ public class ParallelHashJoin extends HashJoin {
             joinResult.insertComplexTable(threadOutput);
         }
 
-
-        System.out.println("##### complete join result " + joinResult.getDictionary().getValues());
         return joinResult;
     }
 }

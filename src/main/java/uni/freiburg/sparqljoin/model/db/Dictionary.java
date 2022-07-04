@@ -1,7 +1,5 @@
 package uni.freiburg.sparqljoin.model.db;
 
-import org.apache.commons.lang3.NotImplementedException;
-
 import java.util.HashMap;
 
 /**
@@ -56,22 +54,9 @@ public class Dictionary {
         return values;
     }
 
-    public void insertValues(Dictionary otherDictionary) {
-        otherDictionary.getValues().forEach((key, value) -> {
-            String dictionaryValue = this.values.get(key);
-
-            if (dictionaryValue == null) {
-                // Key-value pair does not exist yet
-                this.values.put(key, value);
-
-                this.invertedValues.put(value, key); // Assume values and invertedValues are always kept up to date, therefore no need to check existence in invertedValues
-            } else {
-                // Check if value matches
-                if(!dictionaryValue.equals(value)) {
-                    // TODO need to change keys in data structure
-                    throw new NotImplementedException();
-                }
-            }
+    public void putAll(Dictionary otherDictionary) {
+        otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> {
+            this.put(value);
         });
     }
 }
