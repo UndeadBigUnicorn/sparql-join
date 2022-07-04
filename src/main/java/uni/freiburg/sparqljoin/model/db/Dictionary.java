@@ -54,9 +54,18 @@ public class Dictionary {
         return values;
     }
 
+    public HashMap<String, Long> getInvertedValues() {
+        return invertedValues;
+    }
+
     public void putAll(Dictionary otherDictionary) {
         otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> {
             this.put(value);
         });
+    }
+
+    @Override
+    public String toString() {
+        return this.getValues().toString();
     }
 }

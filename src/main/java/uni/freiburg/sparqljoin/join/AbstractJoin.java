@@ -58,13 +58,15 @@ public interface AbstractJoin {
 
     /**
      * Merge 2 tuples into a single with all properties. Merge the dictionaries.
-     * @param joinedItems               Collection of joined items to add new tuple
-     * @param itemsR                    items from R relation
-     * @param itemsS                    items from S relation
-     * @param dictionaryR               R table dictionary. S dictionary items will be added here.
-     * @param dictionaryS               S table dictionary
+     *
+     * @param joinedItems      Collection of joined items to add new tuple
+     * @param outputDictionary Dictionary for the ouput relation
+     * @param itemsR           items from R relation
+     * @param itemsS           items from S relation
+     * @param dictionaryR      R table dictionary
+     * @param dictionaryS      S table dictionary
      */
-    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
+    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, Dictionary outputDictionary, JoinedItems itemsR, JoinedItems itemsS, Dictionary dictionaryR, Dictionary dictionaryS) {
         // clone reference item values to avoid overwriting values by reference
         HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) itemsR.values().clone();
         // add new property values
@@ -72,9 +74,10 @@ public interface AbstractJoin {
             // object was a string -> put value into new dictionary, update item value index
             if (dictionaryS.containsKey(propertyItem.object())) {
                 // TODO the object might have also been a number - to do this reliably, we need a boolean variable for each subject/object that indicates whether a dictionary reference is meant or not. Alternatively, we could also insert integers into the dictionary as values.
+                // TODO write a test for this
                 values.put(property, new Item<>(
                         propertyItem.subject(),
-                        (int) dictionaryR.put(dictionaryS.get(propertyItem.object()))
+                        (int) outputDictionary.put(dictionaryS.get(propertyItem.object()))
                 ));
             } else {
                 // else put as it is

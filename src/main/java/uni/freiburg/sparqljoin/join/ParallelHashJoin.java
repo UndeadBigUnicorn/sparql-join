@@ -33,8 +33,9 @@ public class ParallelHashJoin extends HashJoin {
     @Override
     public ComplexTable join(ComplexTable R, ComplexTable S, String joinPropertyR, JoinOn joinOnR, String joinPropertyS, JoinOn joinOnS) {
         // TODO clean code
+        // TODO combine splitting R and S relations into one thread
 
-        int numThreads = 1;
+        int numThreads = 2;
 
         // Partition relation R across all threads for the build phase
         List<ComplexTable> buildRelationParts = splitRelationIntoParts(R, numThreads);
@@ -62,7 +63,7 @@ public class ParallelHashJoin extends HashJoin {
         // Combine build thread results
         HashJoinBuildOutput combinedBuildOutput = new HashJoinBuildOutput(new HashMap<>());
         for (HashJoinBuildOutput threadOutput : buildOutputs) {
-            combinedBuildOutput.getPartition().putAll(threadOutput.getPartition()); //TODO merge strategy to prevent replacing, add to list at hash key
+            combinedBuildOutput.mergeFrom(threadOutput);
         }
 
         // Partition relation S across all threads for the probe phase

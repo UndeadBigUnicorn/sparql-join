@@ -422,10 +422,6 @@ public class JoinServiceTest {
                 "foaf:givenName",
                 JoinOn.SUBJECT);
 
-        // TODO for debugging only
-        System.out.println("==================== " + userIdGivenNameTable.getDictionary().getValues());
-        System.out.println("==================== " + database.tables().get("foaf:familyName").toComplex().getDictionary().getValues());
-
         ComplexTable userIdGivenNameFamilyNameTable = joinService.parallelHashJoin(
                 userIdGivenNameTable,
                 database.tables().get("foaf:familyName").toComplex(),
@@ -433,11 +429,6 @@ public class JoinServiceTest {
                 JoinOn.SUBJECT,
                 "foaf:familyName",
                 JoinOn.SUBJECT);
-
-        // TODO for debugging only
-        System.out.println("====================2 " + userIdGivenNameTable.getDictionary().getValues());
-        System.out.println("====================2 " + database.tables().get("foaf:familyName").toComplex().getDictionary().getValues());
-        // TODO problem - this is not the same as at the debug prints above!!!
 
         ComplexTable userIdGivenNameFamilyNameFollowsTable = joinService.parallelHashJoin(
                 userIdGivenNameFamilyNameTable,
@@ -610,13 +601,58 @@ public class JoinServiceTest {
         Assert.assertEquals(String.format("Joined Table should have properties '%s', got '%s'", expected.getProperties(), actual.getProperties()),
                 expected.getProperties(), actual.getProperties());
         // check dictionaries
-        var expectedDictValues = expected.getDictionary().getValues();
-        var actualDictValues = actual.getDictionary().getValues();
-        Assert.assertEquals("Joined Table should have correct ordered dictionary with correct values",
-                expectedDictValues, actualDictValues);
-        // check values
-        Assert.assertEquals("Joined Table should have correctly joined values with correct structure",
-                expected.getValues(), actual.getValues());
+        var expectedDictValues = expected.getDictionary();
+        var actualDictValues = actual.getDictionary();
+        assertDictionariesEqual(expectedDictValues, actualDictValues);
+        assertJoinedValuesEqual(expected.getValues(), actual.getValues(), expectedDictValues, actualDictValues);
+    }
+
+    private void assertDictionariesEqual(Dictionary d1, Dictionary d2) {
+        if (d1.getValues().size() != d2.getValues().size()) {
+            System.out.println("Expected: " + d1);
+            System.out.println("Actual: " + d2);
+            Assert.fail("Dictionaries should have the same length");
+        }
+
+        for (String d1Key : d1.getInvertedValues().keySet()) {
+            // Find d1Key in d2
+            if (!d2.getInvertedValues().containsKey(d1Key)) {
+                System.out.println("Expected: " + d1);
+                System.out.println("Actual: " + d2);
+                Assert.fail("Key missing in dictionary");
+            }
+        }
+    }
+
+    private void assertJoinedValuesEqual(List<JoinedItems> j1, List<JoinedItems> j2, Dictionary d1, Dictionary d2) {
+        Assert.assertEquals("Joined Table should have the same length (" + j1.size() + " vs. " + j2.size() + ")", j1.size(), j2.size());
+
+        for (JoinedItems joinedItems1 : j1) {
+            // Find it in j2
+            boolean found = false;
+            for (JoinedItems joinedItems2 : j2) {
+                JoinedItems tempJoinedItem2 = joinedItems2.clone();
+                for (var property : tempJoinedItem2.values().keySet()) {
+                    if (d2.containsKey(tempJoinedItem2.values().get(property).object())) {
+                        // Value of the property was a string
+                        String value2 = d2.get(tempJoinedItem2.values().get(property).object());
+                        if (d1.getInvertedValues().containsKey(value2)) {
+                            tempJoinedItem2.values().put(property, new Item<>(tempJoinedItem2.subject(), d1.getInvertedValues().get(value2).intValue()));
+                        }
+                    }
+                }
+                if (joinedItems1.equals(tempJoinedItem2)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                System.out.println("Expected: " + j1);
+                System.out.println("Actual: " + j2);
+                Assert.fail("Joined Table should have correctly joined values with correct structure");
+            }
+        }
     }
 
     private HashMap<String, SimpleTable> initTables() {
