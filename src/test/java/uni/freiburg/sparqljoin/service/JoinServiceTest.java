@@ -7,10 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import uni.freiburg.sparqljoin.join.JoinOn;
 import uni.freiburg.sparqljoin.model.db.*;
-import uni.freiburg.sparqljoin.model.db.Dictionary;
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JoinServiceTest {
@@ -34,16 +35,16 @@ public class JoinServiceTest {
         ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(2, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
-        joinedValue3.put("foaf:givenName", new Item<>(24, 3));
+        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(24, 3, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameTable = joinService.hashJoin(
@@ -69,19 +70,19 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameDict);
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(2, joinedValue2));
         joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
-        joinedValue3.put("foaf:givenName", new Item<>(24, 3));
-        joinedValue3.put("foaf:familyName", new Item<>(24, 6));
+        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(24, 3, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(24, 6, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.hashJoin(
@@ -101,22 +102,22 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue1.put("wsdbm:follows", new Item<>(0, 24));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue2.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue2.put("wsdbm:follows", new Item<>(0, 27));
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
         joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue3.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue3.put("wsdbm:follows", new Item<>(2, 24));
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.hashJoin(
@@ -136,18 +137,18 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue1.put("wsdbm:follows", new Item<>(0, 24));
-        joinedValue1.put("wsdbm:likes", new Item<>(24, 25));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
+        joinedValue1.put("wsdbm:likes", new Item<>(24, 25, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue2.put("wsdbm:follows", new Item<>(2, 24));
-        joinedValue2.put("wsdbm:likes", new Item<>(24, 25));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
+        joinedValue2.put("wsdbm:likes", new Item<>(24, 25, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable.insert(new JoinedItems(2, joinedValue2));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.hashJoin(
@@ -181,21 +182,21 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue2.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue2.put("wsdbm:follows", new Item<>(0, 27));
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue3.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue3.put("wsdbm:follows", new Item<>(2, 24));
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable userIdGivenNameTable = joinService.hashJoin(
@@ -250,16 +251,16 @@ public class JoinServiceTest {
         ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(2, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
-        joinedValue3.put("foaf:givenName", new Item<>(24, 3));
+        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(24, 3, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameTable = joinService.parallelHashJoin(
@@ -285,19 +286,19 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameDict);
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(2, joinedValue2));
         joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
-        joinedValue3.put("foaf:givenName", new Item<>(24, 3));
-        joinedValue3.put("foaf:familyName", new Item<>(24, 6));
+        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(24, 3, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(24, 6, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.parallelHashJoin(
@@ -317,22 +318,22 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue1.put("wsdbm:follows", new Item<>(0, 24));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue2.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue2.put("wsdbm:follows", new Item<>(0, 27));
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
         joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue3.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue3.put("wsdbm:follows", new Item<>(2, 24));
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.parallelHashJoin(
@@ -352,18 +353,18 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue1.put("wsdbm:follows", new Item<>(0, 24));
-        joinedValue1.put("wsdbm:likes", new Item<>(24, 25));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
+        joinedValue1.put("wsdbm:likes", new Item<>(24, 25, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue2.put("wsdbm:follows", new Item<>(2, 24));
-        joinedValue2.put("wsdbm:likes", new Item<>(24, 25));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
+        joinedValue2.put("wsdbm:likes", new Item<>(24, 25, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable.insert(new JoinedItems(2, joinedValue2));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.parallelHashJoin(
@@ -397,21 +398,21 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue2.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue2.put("wsdbm:follows", new Item<>(0, 27));
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue3.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue3.put("wsdbm:follows", new Item<>(2, 24));
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable userIdGivenNameTable = joinService.parallelHashJoin(
@@ -466,16 +467,16 @@ public class JoinServiceTest {
         ComplexTable expectedJoinedUserIdGivenNameTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName")), expectedJoinedUserIdGivenNameDict);
 
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(2, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
-        joinedValue3.put("foaf:givenName", new Item<>(24, 3));
+        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(24, 3, DataType.STRING));
         expectedJoinedUserIdGivenNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameTable = joinService.sortMergeJoin(
@@ -501,19 +502,19 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameDict);
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(2, joinedValue2));
         joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125));
-        joinedValue3.put("foaf:givenName", new Item<>(24, 3));
-        joinedValue3.put("foaf:familyName", new Item<>(24, 6));
+        joinedValue3.put("wsdbm:userId", new Item<>(24, 15125125, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(24, 3, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(24, 6, DataType.STRING));
         expectedJoinedUserIdGivenNameFamilyNameTable.insert(new JoinedItems(24, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.sortMergeJoin(
@@ -533,22 +534,22 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue1.put("wsdbm:follows", new Item<>(0, 24));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue2.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue2.put("wsdbm:follows", new Item<>(0, 27));
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
         joinedValue3 = new HashMap<>();
-        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue3.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue3.put("wsdbm:follows", new Item<>(2, 24));
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.sortMergeJoin(
@@ -568,18 +569,18 @@ public class JoinServiceTest {
                 expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary());
 
         joinedValue1 = new HashMap<>();
-        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723));
-        joinedValue1.put("foaf:givenName", new Item<>(0, 1));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4));
-        joinedValue1.put("wsdbm:follows", new Item<>(0, 24));
-        joinedValue1.put("wsdbm:likes", new Item<>(24, 25));
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
+        joinedValue1.put("wsdbm:likes", new Item<>(24, 25, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable.insert(new JoinedItems(0, joinedValue1));
         joinedValue2 = new HashMap<>();
-        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247));
-        joinedValue2.put("foaf:givenName", new Item<>(2, 2));
-        joinedValue2.put("foaf:familyName", new Item<>(2, 5));
-        joinedValue2.put("wsdbm:follows", new Item<>(2, 24));
-        joinedValue2.put("wsdbm:likes", new Item<>(24, 25));
+        joinedValue2.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
+        joinedValue2.put("wsdbm:likes", new Item<>(24, 25, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable.insert(new JoinedItems(2, joinedValue2));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.sortMergeJoin(
@@ -637,7 +638,10 @@ public class JoinServiceTest {
                         // Value of the property was a string
                         String value2 = d2.get(tempJoinedItem2.values().get(property).object());
                         if (d1.getInvertedValues().containsKey(value2)) {
-                            tempJoinedItem2.values().put(property, new Item<>(tempJoinedItem2.subject(), d1.getInvertedValues().get(value2).intValue()));
+                            tempJoinedItem2.values().put(property,
+                                    new Item<>(tempJoinedItem2.subject(),
+                                            d1.getInvertedValues().get(value2).intValue(),
+                                            tempJoinedItem2.values().get(property).type()));
                         }
                     }
                 }
@@ -663,9 +667,9 @@ public class JoinServiceTest {
         givenNameDict.put("HAN");
         givenNameDict.put("LEA");
         SimpleTable givenNameTable = new SimpleTable("foaf:givenName", givenNameDict);
-        givenNameTable.insert(new Item<>(0, 1));
-        givenNameTable.insert(new Item<>(2, 2));
-        givenNameTable.insert(new Item<>(24, 3));
+        givenNameTable.insert(new Item<>(0, 1, DataType.STRING));
+        givenNameTable.insert(new Item<>(2, 2, DataType.STRING));
+        givenNameTable.insert(new Item<>(24, 3, DataType.STRING));
         tables.put("foaf:givenName", givenNameTable);
 
         Dictionary familyNameDict = new Dictionary();
@@ -673,25 +677,25 @@ public class JoinServiceTest {
         familyNameDict.put("SOLO");
         familyNameDict.put("ORGANA");
         SimpleTable familyNameTable = new SimpleTable("foaf:familyName", familyNameDict);
-        familyNameTable.insert(new Item<>(0, 1));
-        familyNameTable.insert(new Item<>(2, 2));
-        familyNameTable.insert(new Item<>(24, 3));
+        familyNameTable.insert(new Item<>(0, 1, DataType.STRING));
+        familyNameTable.insert(new Item<>(2, 2, DataType.STRING));
+        familyNameTable.insert(new Item<>(24, 3, DataType.STRING));
         tables.put("foaf:familyName", familyNameTable);
 
         SimpleTable userIdTable = new SimpleTable("wsdbm:userId");
-        userIdTable.insert(new Item<>(0, 1806723));
-        userIdTable.insert(new Item<>(2, 1936247));
-        userIdTable.insert(new Item<>(24, 15125125));
+        userIdTable.insert(new Item<>(0, 1806723, DataType.INTEGER));
+        userIdTable.insert(new Item<>(2, 1936247, DataType.INTEGER));
+        userIdTable.insert(new Item<>(24, 15125125, DataType.INTEGER));
         tables.put("wsdbm:userId", userIdTable);
 
         SimpleTable followsTable = new SimpleTable("wsdbm:follows");
-        followsTable.insert(new Item<>(0, 24));
-        followsTable.insert(new Item<>(0, 27));
-        followsTable.insert(new Item<>(2, 24));
+        followsTable.insert(new Item<>(0, 24, DataType.OBJECT));
+        followsTable.insert(new Item<>(0, 27, DataType.OBJECT));
+        followsTable.insert(new Item<>(2, 24, DataType.OBJECT));
         tables.put("wsdbm:follows", followsTable);
 
         SimpleTable likesTable = new SimpleTable("wsdbm:likes");
-        likesTable.insert(new Item<>(24, 25));
+        likesTable.insert(new Item<>(24, 25, DataType.OBJECT));
         tables.put("wsdbm:likes", likesTable);
 
         return tables;

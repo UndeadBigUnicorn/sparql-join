@@ -95,7 +95,7 @@ public class ComplexTable {
                         itemObjectKey = this.getDictionary().put(itemObjectStr);
                     }
 
-                    item.values().put(property, new Item<>(propertyValue.subject(), itemObjectKey.intValue()));
+                    item.values().put(property, new Item<>(propertyValue.subject(), itemObjectKey.intValue(), propertyValue.type()));
                 }
             });
 

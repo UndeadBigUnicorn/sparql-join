@@ -1,6 +1,7 @@
 package uni.freiburg.sparqljoin.join;
 
 import uni.freiburg.sparqljoin.model.db.ComplexTable;
+import uni.freiburg.sparqljoin.model.db.DataType;
 import uni.freiburg.sparqljoin.model.db.Dictionary;
 import uni.freiburg.sparqljoin.model.db.Item;
 import uni.freiburg.sparqljoin.model.join.BuildOutput;
@@ -72,18 +73,19 @@ public interface AbstractJoin {
         // add new property values
         itemsS.values().forEach((property, propertyItem) -> {
             // object was a string -> put value into new dictionary, update item value index
-            if (dictionaryS.containsKey(propertyItem.object())) {
-                // TODO the object might have also been a number - to do this reliably, we need a boolean variable for each subject/object that indicates whether a dictionary reference is meant or not. Alternatively, we could also insert integers into the dictionary as values.
+            if (propertyItem.type().equals(DataType.STRING) && dictionaryS.containsKey(propertyItem.object())) {
                 // TODO write a test for this
                 values.put(property, new Item<>(
                         propertyItem.subject(),
-                        (int) outputDictionary.put(dictionaryS.get(propertyItem.object()))
+                        (int) outputDictionary.put(dictionaryS.get(propertyItem.object())),
+                        propertyItem.type()
                 ));
             } else {
                 // else put as it is
                 values.put(property, new Item<>(
                         propertyItem.subject(),
-                        propertyItem.object())
+                        propertyItem.object(),
+                        propertyItem.type())
                 );
             }
         });
