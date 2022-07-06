@@ -78,35 +78,36 @@ public class HashJoin implements AbstractJoin {
         List<JoinedItems> joinedItems = new ArrayList<>(); // Output list
 
         // For each tuple in S...
-        S.getValues().forEach(probeItems -> {
+        S.getValues().forEach(probeJoinedItems -> {
             long hashedSKey;
             if (joinOnS == JoinOn.SUBJECT) {
-                hashedSKey = Hasher.hash(probeItems.subject());
+                hashedSKey = Hasher.hash(probeJoinedItems.subject());
             } else {
-                hashedSKey = Hasher.hash(probeItems.values().get(joinPropertyS).object());
+                hashedSKey = Hasher.hash(probeJoinedItems.values().get(joinPropertyS).object());
             }
 
             // ... look up its join key in the hash table of R
             if (hashedReferenceTablePartitions.containsKey(hashedSKey)) {
-                // A match is found. Output the combined tuple.
-                for (JoinedItems matchingReferenceTableItems : hashedReferenceTablePartitions.get(hashedSKey)) {
-                    if (!matchingReferenceTableItems.values().containsKey(joinPropertyR)) {
+                for (JoinedItems referenceJoinedItems : hashedReferenceTablePartitions.get(hashedSKey)) {
+                    if (!referenceJoinedItems.values().containsKey(joinPropertyR)) {
                         return; // Discard this S tuple
                     }
-                    if (!probeItems.values().containsKey(joinPropertyS)) {
+                    if (!probeJoinedItems.values().containsKey(joinPropertyS)) {
                         return; // Discard this S tuple
                     }
 
+                    // A match is found. Output the combined tuple.
+
                     // Get join property
-                    Item<Integer> referenceItem = matchingReferenceTableItems.values().get(joinPropertyR);
-                    Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
+                    Item<Integer> referenceItem = referenceJoinedItems.values().get(joinPropertyR);
+                    Item<Integer> probeItem = probeJoinedItems.values().get(joinPropertyS);
 
                     // Check if there is a hash collision
                     long referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
                     long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
                         // No hash collision
-                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, matchingReferenceTableItems, probeItems, referenceTableDictionary, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceJoinedItems, probeJoinedItems, referenceTableDictionary, probeTableDictionary);
                     }
                 }
             }
