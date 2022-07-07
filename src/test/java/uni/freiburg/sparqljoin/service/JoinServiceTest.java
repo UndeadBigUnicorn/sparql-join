@@ -120,6 +120,12 @@ public class JoinServiceTest {
         joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
+        // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getValues().remove((long) 3);
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getInvertedValues().remove("LEA");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getValues().remove((long) 6);
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getInvertedValues().remove("ORGANA");
+
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.hashJoin(
                 actualJoinedUserIdGivenNameFamilyNameTable,
                 database.tables().get("wsdbm:follows").toComplex(),
@@ -174,10 +180,8 @@ public class JoinServiceTest {
         Dictionary expectedJoinedUserIdGivenNameFamilyNameFollowsDict = new Dictionary();
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LUKE");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("HAN");
-        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LEA");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SKYWALKER");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SOLO");
-        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("ORGANA");
         ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
                 expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
 
@@ -336,6 +340,12 @@ public class JoinServiceTest {
         joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
+        // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getValues().remove((long) 3);
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getInvertedValues().remove("LEA");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getValues().remove((long) 6);
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getInvertedValues().remove("ORGANA");
+
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.parallelHashJoin(
                 actualJoinedUserIdGivenNameFamilyNameTable,
                 database.tables().get("wsdbm:follows").toComplex(),
@@ -390,10 +400,8 @@ public class JoinServiceTest {
         Dictionary expectedJoinedUserIdGivenNameFamilyNameFollowsDict = new Dictionary();
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LUKE");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("HAN");
-        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LEA");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SKYWALKER");
         expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SOLO");
-        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("ORGANA");
         ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
                 expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
 
@@ -552,6 +560,12 @@ public class JoinServiceTest {
         joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
+        // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getValues().remove((long) 3);
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getInvertedValues().remove("LEA");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getValues().remove((long) 6);
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.getDictionary().getInvertedValues().remove("ORGANA");
+
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.sortMergeJoin(
                 actualJoinedUserIdGivenNameFamilyNameTable,
                 database.tables().get("wsdbm:follows").toComplex(),
@@ -592,6 +606,77 @@ public class JoinServiceTest {
                 JoinOn.SUBJECT);
 
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsLikesTable, actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable);
+    }
+
+    /**
+     * Test parallel hash join of 2 multi-properties tables
+     */
+    @Test
+    public void testComplexSortMergeJoin() {
+        Database database = new Database(initTables());
+
+        // join userId, givenName, familyName on userId, givenName, familyName, follows
+
+        Dictionary expectedJoinedUserIdGivenNameFamilyNameFollowsDict = new Dictionary();
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("LUKE");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("HAN");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SKYWALKER");
+        expectedJoinedUserIdGivenNameFamilyNameFollowsDict.put("SOLO");
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(new LinkedHashSet<>(List.of("wsdbm:userId", "foaf:givenName", "foaf:familyName", "wsdbm:follows")),
+                expectedJoinedUserIdGivenNameFamilyNameFollowsDict);
+
+        HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
+        joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
+        HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
+        joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
+        joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
+        HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
+        joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
+        joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
+
+        ComplexTable userIdGivenNameTable = joinService.sortMergeJoin(
+                database.tables().get("wsdbm:userId").toComplex(),
+                database.tables().get("foaf:givenName").toComplex(),
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "foaf:givenName",
+                JoinOn.SUBJECT);
+
+        ComplexTable userIdGivenNameFamilyNameTable = joinService.sortMergeJoin(
+                userIdGivenNameTable,
+                database.tables().get("foaf:familyName").toComplex(),
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "foaf:familyName",
+                JoinOn.SUBJECT);
+
+        ComplexTable userIdGivenNameFamilyNameFollowsTable = joinService.sortMergeJoin(
+                userIdGivenNameFamilyNameTable,
+                database.tables().get("wsdbm:follows").toComplex(),
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.SUBJECT);
+
+        ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.sortMergeJoin(
+                userIdGivenNameFamilyNameTable,
+                userIdGivenNameFamilyNameFollowsTable,
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "wsdbm:userId",
+                JoinOn.SUBJECT);
+
+        compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
+
     }
 
     private void compareTables(ComplexTable expected, ComplexTable actual) {
