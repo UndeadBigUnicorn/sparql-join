@@ -35,7 +35,7 @@ public class ParallelHashJoin extends HashJoin {
         // TODO clean code
         // TODO combine splitting R and S relations into one thread
 
-        int numThreads = 2;
+        int numThreads = 6;
 
         // Partition relation R across all threads for the build phase
         List<ComplexTable> buildRelationParts = splitRelationIntoParts(R, numThreads);
