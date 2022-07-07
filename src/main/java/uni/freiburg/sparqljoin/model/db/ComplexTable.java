@@ -66,28 +66,15 @@ public class ComplexTable {
     }
 
     /**
-     * Adds the data of another ComplexTable into this one
+     * Adapt object longs with values from the other dictionary and insert into this table
      *
      * @param otherTable The other table
      */
     public void insertComplexTable(ComplexTable otherTable) {
-        for (int i = 0; i < otherTable.getValues().size(); i++) {
-            JoinedItems item = otherTable.getValues().get(i);
-
-            /*// Insert subject string into this dictionary. Replace the key of the data related to the old dict in the data by the new key
-            String itemSubjectStr = otherTable.getDictionary().getValues().get(item.subject());
-            long itemSubjectNewKey = this.getDictionary().put(itemSubjectStr);
-
-            // Do the same for the values
-            //@SuppressWarnings("unchecked") HashMap<String, Item<Integer>> values = (HashMap<String, Item<Integer>>) item.values().clone();
-            otherTable.
-
-            otherTable.getValues().set(i, new Item<Integer>(itemSubjectNewKey, item.values()));*/
-
-            // Adapt object longs with values from new dictionary
-            item.values().forEach((property, propertyValue) -> {
+        otherTable.getValues().forEach(joinedItems -> {
+            joinedItems.values().forEach((property, propertyValue) -> {
                 String itemObjectStr = otherTable.getDictionary().getValues().get((long) propertyValue.object());
-                if (itemObjectStr != null) {
+                if (propertyValue.type() == DataType.STRING) {
                     // Object is a string
                     Long itemObjectKey = this.getDictionary().getInvertedValues().get(itemObjectStr);
                     if (itemObjectKey == null) {
@@ -95,15 +82,15 @@ public class ComplexTable {
                         itemObjectKey = this.getDictionary().put(itemObjectStr);
                     }
 
-                    item.values().put(property, new Item<>(propertyValue.subject(), itemObjectKey.intValue(), propertyValue.type()));
+                    joinedItems.values().put(property, new Item<>(propertyValue.subject(), itemObjectKey.intValue(), propertyValue.type()));
                 }
             });
 
-            this.items.put(item);
+            this.items.put(joinedItems);
 
             // Add properties if not exists
-            this.properties.addAll(item.values().keySet());
-        }
+            this.properties.addAll(joinedItems.values().keySet());
+        });
     }
 
     /**
