@@ -713,14 +713,15 @@ public class JoinServiceTest {
     private void assertJoinedValuesEqual(List<JoinedItems> j1, List<JoinedItems> j2, Dictionary d1, Dictionary d2) {
         Assert.assertEquals("Joined Table should have the same length (" + j1.size() + " vs. " + j2.size() + ")", j1.size(), j2.size());
 
+        // For each JoinedItems in j1
         for (JoinedItems joinedItems1 : j1) {
             // Find it in j2
             boolean found = false;
             for (JoinedItems joinedItems2 : j2) {
                 JoinedItems tempJoinedItem2 = joinedItems2.clone();
+                // Switch dictionaries in tempJoinedItem2 so comparing becomes very easy
                 for (var property : tempJoinedItem2.values().keySet()) {
-                    if (d2.containsKey(tempJoinedItem2.values().get(property).object())) {
-                        // Value of the property was a string
+                    if (tempJoinedItem2.values().get(property).type() == DataType.STRING) {
                         String value2 = d2.get(tempJoinedItem2.values().get(property).object());
                         if (d1.getInvertedValues().containsKey(value2)) {
                             tempJoinedItem2.values().put(property,
@@ -738,7 +739,9 @@ public class JoinServiceTest {
 
             if (!found) {
                 System.out.println("Expected: " + j1);
+                System.out.println("using dictionary: " + d1);
                 System.out.println("Actual: " + j2);
+                System.out.println("using dictionary: " + d2);
                 Assert.fail("Joined Table should have correctly joined values with correct structure");
             }
         }
