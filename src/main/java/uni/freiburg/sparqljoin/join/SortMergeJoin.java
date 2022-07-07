@@ -32,7 +32,13 @@ public class SortMergeJoin implements AbstractJoin {
         MergeJoinBuildOutput sortedR = (MergeJoinBuildOutput) build(R, joinPropertyR, joinOnR);
         MergeJoinBuildOutput sortedS = (MergeJoinBuildOutput) build(S, joinPropertyS, joinOnS);
         MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput(sortedR.getValuesR(), sortedS.getValuesR());
-        return probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        ComplexTable probeOutput = probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+
+        // Remove unnecessary dictionary entries
+        ComplexTable joinResult = new ComplexTable(new LinkedHashSet<>());
+        joinResult.insertComplexTable(probeOutput);
+
+        return joinResult;
     }
 
     /**

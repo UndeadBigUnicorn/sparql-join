@@ -8,6 +8,7 @@ import uni.freiburg.sparqljoin.model.join.BuildOutput;
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -29,8 +30,15 @@ public interface AbstractJoin {
     default ComplexTable join(ComplexTable R, ComplexTable S,
                               String joinPropertyR, JoinOn joinOnR,
                               String joinPropertyS, JoinOn joinOnS) {
-        BuildOutput output = build(R, joinPropertyR, joinOnR);
-        return probe(output, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        BuildOutput buildOutput = build(R, joinPropertyR, joinOnR);
+        ComplexTable probeOutput = probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+
+
+        // Remove unnecessary dictionary entries
+        ComplexTable joinResult = new ComplexTable(new LinkedHashSet<>());
+        joinResult.insertComplexTable(probeOutput);
+
+        return joinResult;
     }
 
     /**
