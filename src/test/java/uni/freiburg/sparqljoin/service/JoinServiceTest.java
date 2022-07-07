@@ -188,20 +188,21 @@ public class JoinServiceTest {
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
         joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
         joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 3, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
         joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
         joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 3, DataType.STRING));
         joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
         joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
         joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 4, DataType.STRING));
         joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
         ComplexTable userIdGivenNameTable = joinService.hashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -408,20 +409,21 @@ public class JoinServiceTest {
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
         joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
         joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 3, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
         joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
         joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 3, DataType.STRING));
         joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
         joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
         joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 4, DataType.STRING));
         joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
         ComplexTable userIdGivenNameTable = joinService.parallelHashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -628,20 +630,21 @@ public class JoinServiceTest {
         HashMap<String, Item<Integer>> joinedValue1 = new HashMap<>();
         joinedValue1.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
         joinedValue1.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
-        joinedValue1.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue1.put("foaf:familyName", new Item<>(0, 3, DataType.STRING));
+        joinedValue1.put("wsdbm:follows", new Item<>(0, 24, DataType.OBJECT));
         expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
         HashMap<String, Item<Integer>> joinedValue2 = new HashMap<>();
         joinedValue2.put("wsdbm:userId", new Item<>(0, 1806723, DataType.INTEGER));
         joinedValue2.put("foaf:givenName", new Item<>(0, 1, DataType.STRING));
-        joinedValue2.put("foaf:familyName", new Item<>(0, 4, DataType.STRING));
+        joinedValue2.put("foaf:familyName", new Item<>(0, 3, DataType.STRING));
         joinedValue2.put("wsdbm:follows", new Item<>(0, 27, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue2));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
         HashMap<String, Item<Integer>> joinedValue3 = new HashMap<>();
         joinedValue3.put("wsdbm:userId", new Item<>(2, 1936247, DataType.INTEGER));
         joinedValue3.put("foaf:givenName", new Item<>(2, 2, DataType.STRING));
-        joinedValue3.put("foaf:familyName", new Item<>(2, 5, DataType.STRING));
+        joinedValue3.put("foaf:familyName", new Item<>(2, 4, DataType.STRING));
         joinedValue3.put("wsdbm:follows", new Item<>(2, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(24, joinedValue3));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
 
         ComplexTable userIdGivenNameTable = joinService.sortMergeJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
