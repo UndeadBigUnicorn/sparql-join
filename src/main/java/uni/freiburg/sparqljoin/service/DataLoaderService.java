@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,7 +24,8 @@ public class DataLoaderService {
 
     /**
      * Parse the dataset and load data into database structure
-     * @param path  to the dataset to read
+     *
+     * @param path to the dataset to read
      */
     public Database load(String path) {
         LOG.info("Loading dataset...");
@@ -43,7 +43,8 @@ public class DataLoaderService {
 
     /**
      * Parse line into triplet
-     * @param line  to parse
+     *
+     * @param line to parse
      */
     private Triplet parseTriplet(final String line) {
         List<String> tokens = new ArrayList<>(List.of(line.split("\t")));
@@ -55,11 +56,11 @@ public class DataLoaderService {
             for (int i = 0; i < tokens.size(); i++) {
                 String token = tokens.get(i);
                 List<String> domains = List.of(token.split("/"));
-                String domain = domains.get(domains.size()-1).replaceAll(">", "");
+                String domain = domains.get(domains.size() - 1).replaceAll(">", "");
                 // needed value could be in last domain with #begin
                 if (domain.contains("#")) {
                     domains = List.of(domain.split("#"));
-                    domain = domains.get(domains.size()-1);
+                    domain = domains.get(domains.size() - 1);
                 }
                 // small hash to indicate that it is an object
                 if (token.contains("wsdbm")) {
@@ -85,7 +86,8 @@ public class DataLoaderService {
     /**
      * Put triplet into the property table,
      * save string value to dictionary if needed
-     * @param triplet  to put
+     *
+     * @param triplet to put
      */
     private void processTriplet(final Triplet triplet) {
         // create new table
@@ -98,7 +100,7 @@ public class DataLoaderService {
         long subjectKey = extractKey(triplet.subject(), dict);
         int objectKey = (int) extractKey(triplet.object(), dict);
 
-        table.insert(new Item<>(subjectKey, objectKey));
+        table.insert(new Item<>(subjectKey, objectKey, typeOf(triplet.object())));
 
     }
 
@@ -107,33 +109,36 @@ public class DataLoaderService {
      * Because integer comparisons are faster than string comparisons, we will assign a unique integer to each unique
      * string value and store it in dict.
      * If value is an integer wrapped inside a string, convert it to integer.
+     *
      * @param value Value to extract the key from
-     * @param dict The dictionary where the mapping between string and int will be stored
+     * @param dict  The dictionary where the mapping between string and int will be stored
      * @return integer representation
      */
     private long extractKey(String value, Dictionary dict) {
         return switch (typeOf(value)) {
-            case "string" ->
-                    dict.put(value);
-            case "int" -> Integer.parseInt(value);
-            case "object" -> Integer.parseInt(value.replaceAll("\\D", "")); // TODO may this cause an integer value collision? If not, add a comment why
-            default -> throw new IllegalStateException("Unexpected value: " + typeOf(value));
+            case STRING -> dict.put(value);
+            case INTEGER -> Integer.parseInt(value);
+            case OBJECT ->
+                    // non-numeric value replacement shouldn't create collisions
+                    // because the property holds values of one specific type
+                    Integer.parseInt(value.replaceAll("\\D", ""));
         };
     }
 
 
     /**
      * Get real type of the String value
+     *
      * @param value String value to check
-     * @return String representation of type
+     * @return DataType of the value
      */
-    private static String typeOf(String value) {
+    private static DataType typeOf(String value) {
         if (value.contains("wsdbm:")) {
-            return "object";
+            return DataType.OBJECT;
         } else if (StringUtils.isNumeric(value)) {
-            return "int";
+            return DataType.INTEGER;
         }
-        return "string";
+        return DataType.STRING;
     }
 
 }

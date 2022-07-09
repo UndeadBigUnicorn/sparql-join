@@ -42,15 +42,60 @@ public class ComplexTable {
     }
 
     /**
-     * Save value
-     * @param item to save
+     * Insert items, dictionary values must already exist
+     *
+     * @param items to save
      */
-    public void insert(JoinedItems item) {
-        this.items.put(item);
+    public void insert(JoinedItems items) {
+        this.items.put(items);
+
+        // Add properties if not exists
+        this.properties.addAll(items.values().keySet());
+    }
+
+    /**
+     * Insert items, adding missing dictionary entries
+     *
+     * @param items to save
+     */
+    public void insert(JoinedItems items, Dictionary dictionary) {
+        insert(items);
+
+        // Add dictionary entries if not exists
+        this.dictionary.putAll(dictionary);
+    }
+
+    /**
+     * Adapt object longs with values from the other dictionary and insert into this table
+     *
+     * @param otherTable The other table
+     */
+    public void insertComplexTable(ComplexTable otherTable) {
+        otherTable.getValues().forEach(joinedItems -> {
+            joinedItems.values().forEach((property, propertyValue) -> {
+                String itemObjectStr = otherTable.getDictionary().getValues().get((long) propertyValue.object());
+                if (propertyValue.type() == DataType.STRING) {
+                    // Object is a string
+                    Long itemObjectKey = this.getDictionary().getInvertedValues().get(itemObjectStr);
+                    if (itemObjectKey == null) {
+                        // Does not exist yet, generate a new value
+                        itemObjectKey = this.getDictionary().put(itemObjectStr);
+                    }
+
+                    joinedItems.values().put(property, new Item<>(propertyValue.subject(), itemObjectKey.intValue(), propertyValue.type()));
+                }
+            });
+
+            this.items.put(joinedItems);
+
+            // Add properties if not exists
+            this.properties.addAll(joinedItems.values().keySet());
+        });
     }
 
     /**
      * Get all values in the table
+     *
      * @return List of values
      */
     public List<JoinedItems> getValues() {
@@ -63,10 +108,11 @@ public class ComplexTable {
 
     /**
      * Join 2 tables
+     *
      * @param another table to join
      * @param newDict joined dictionary
      * @param values  new property values
-     * @return        joined ComplexTable
+     * @return joined ComplexTable
      */
     public ComplexTable join(ComplexTable another, Dictionary newDict, PropertyValues<JoinedItems> values) {
         // concat properties of 2 tables

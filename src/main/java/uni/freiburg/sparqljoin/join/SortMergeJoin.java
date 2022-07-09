@@ -32,7 +32,13 @@ public class SortMergeJoin implements AbstractJoin {
         MergeJoinBuildOutput sortedR = (MergeJoinBuildOutput) build(R, joinPropertyR, joinOnR);
         MergeJoinBuildOutput sortedS = (MergeJoinBuildOutput) build(S, joinPropertyS, joinOnS);
         MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput(sortedR.getValuesR(), sortedS.getValuesR());
-        return probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        ComplexTable probeOutput = probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+
+        // Remove unnecessary dictionary entries
+        ComplexTable joinResult = new ComplexTable(new LinkedHashSet<>());
+        joinResult.insertComplexTable(probeOutput);
+
+        return joinResult;
     }
 
     /**
@@ -71,6 +77,9 @@ public class SortMergeJoin implements AbstractJoin {
         // create new dictionary for merge
         Dictionary referenceTableDictionary = R.getDictionary();
         Dictionary probeTableDictionary = S.getDictionary();
+        Dictionary outputDictionary = new Dictionary();
+        outputDictionary.putAll(referenceTableDictionary);
+
         List<JoinedItems> joinedItems = new ArrayList<>(); // Output list
 
         int referenceRelIndex = 0;
@@ -94,7 +103,7 @@ public class SortMergeJoin implements AbstractJoin {
             } else {
                 // Match is found
 
-                mergeTuplesAndDictionaries(joinedItems, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
+                mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
 
                 // output further tuples that match with reference item
                 int probeRelIndexPrime = probeRelIndex + 1;
@@ -103,7 +112,7 @@ public class SortMergeJoin implements AbstractJoin {
                     Item<Integer> probeItemNext = probeItemsNext.values().get(joinPropertyS);
                     long probeJoinKeyNext = joinOnS == JoinOn.SUBJECT ? probeItemNext.subject() : probeItemNext.object();
                     if (referenceJoinKey == probeJoinKeyNext) {
-                        mergeTuplesAndDictionaries(joinedItems, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
                         probeRelIndexPrime++;
                     } else {
                         break;
@@ -117,7 +126,7 @@ public class SortMergeJoin implements AbstractJoin {
                     Item<Integer> referenceItemNext = referenceItemsNext.values().get(joinPropertyR);
                     long referenceJoinKeyNext = joinOnR == JoinOn.SUBJECT ? referenceItemNext.subject() : referenceItemNext.object();
                     if (referenceJoinKeyNext == probeJoinKey) {
-                        mergeTuplesAndDictionaries(joinedItems, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
                         referenceRelIndexPrime++;
                     } else {
                         break;
@@ -135,7 +144,7 @@ public class SortMergeJoin implements AbstractJoin {
 
         Set<String> properties = new LinkedHashSet<>(set);
 
-        return new ComplexTable(properties, referenceTableDictionary, new PropertyValues<>(joinedItems));
+        return new ComplexTable(properties, outputDictionary, new PropertyValues<>(joinedItems));
     }
 
 }

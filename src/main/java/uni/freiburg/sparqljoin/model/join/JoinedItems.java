@@ -1,4 +1,5 @@
 package uni.freiburg.sparqljoin.model.join;
+
 import uni.freiburg.sparqljoin.join.JoinOn;
 import uni.freiburg.sparqljoin.model.db.Item;
 
@@ -7,9 +8,9 @@ import java.util.HashMap;
 
 /**
  * @param subject RDF subject
- * @param values HashMap with (key = RDF property, value = (RDF subject (the same as above), RDF object))
+ * @param values  HashMap with (key = RDF property, value = (RDF subject (the same as above), RDF object))
  */
-public record JoinedItems(long subject, HashMap<String, Item<Integer>> values){
+public record JoinedItems(long subject, HashMap<String, Item<Integer>> values) {
     @Override
     public boolean equals(Object obj) {
         assert obj instanceof JoinedItems;
@@ -25,6 +26,11 @@ public record JoinedItems(long subject, HashMap<String, Item<Integer>> values){
             }
         }
         return true;
+    }
+
+    public JoinedItems clone() {
+        //noinspection unchecked
+        return new JoinedItems(this.subject, (HashMap<String, Item<Integer>>) this.values.clone());
     }
 
     public static class JoinedItemsComparator implements Comparator<JoinedItems> {

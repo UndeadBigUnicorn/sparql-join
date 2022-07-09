@@ -49,33 +49,33 @@ public class DataLoaderServiceTest {
         HashMap<String, SimpleTable> tables = new HashMap<>();
 
         SimpleTable parentCountryTable = new SimpleTable("gn:parentCountry");
-        parentCountryTable.insert(new Item<>(0, 20));
-        parentCountryTable.insert(new Item<>(1, 0));
+        parentCountryTable.insert(new Item<>(0, 20, DataType.OBJECT));
+        parentCountryTable.insert(new Item<>(1, 0, DataType.OBJECT));
         tables.put("gn:parentCountry", parentCountryTable);
 
         SimpleTable followsTable = new SimpleTable("wsdbm:follows");
-        followsTable.insert(new Item<>(0, 24));
-        followsTable.insert(new Item<>(0, 27));
+        followsTable.insert(new Item<>(0, 24, DataType.OBJECT));
+        followsTable.insert(new Item<>(0, 27, DataType.OBJECT));
         tables.put("wsdbm:follows", followsTable);
 
         SimpleTable userIdTable = new SimpleTable("wsdbm:userId");
-        userIdTable.insert(new Item<>(0, 1806723));
-        userIdTable.insert(new Item<>(2, 1936247));
+        userIdTable.insert(new Item<>(0, 1806723, DataType.INTEGER));
+        userIdTable.insert(new Item<>(2, 1936247, DataType.INTEGER));
         tables.put("wsdbm:userId", userIdTable);
 
         SimpleTable emailTable = new SimpleTable("sorg:email", dictionaries.get("sorg:email"));
-        emailTable.insert(new Item<>(0, 1));
+        emailTable.insert(new Item<>(0, 1, DataType.STRING));
         tables.put("sorg:email", emailTable);
 
         SimpleTable givenNameTable =
                 new SimpleTable("foaf:givenName", dictionaries.get("foaf:givenName"));
-        givenNameTable.insert(new Item<>(0, 1));
-        givenNameTable.insert(new Item<>(2, 1));
+        givenNameTable.insert(new Item<>(0, 1, DataType.STRING));
+        givenNameTable.insert(new Item<>(2, 1, DataType.STRING));
         tables.put("foaf:givenName", givenNameTable);
 
         SimpleTable familyNameTable =
                 new SimpleTable("foaf:familyName", dictionaries.get("foaf:familyName"));
-        familyNameTable.insert(new Item<>(2, 1));
+        familyNameTable.insert(new Item<>(2, 1, DataType.STRING));
         tables.put("foaf:familyName", familyNameTable);
         return tables;
     }

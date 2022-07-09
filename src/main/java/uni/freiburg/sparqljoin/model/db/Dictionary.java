@@ -21,6 +21,7 @@ public class Dictionary {
 
     /**
      * Put value into the dictionary (if not exists) and return unique integer representation
+     *
      * @param value to save
      * @return unique integer that represent putted value
      */
@@ -37,6 +38,7 @@ public class Dictionary {
 
     /**
      * Get string value from the dictionary by its index
+     *
      * @param key index representation of the value
      * @return value from the dictionary
      */
@@ -50,5 +52,20 @@ public class Dictionary {
 
     public HashMap<Long, String> getValues() {
         return values;
+    }
+
+    public HashMap<String, Long> getInvertedValues() {
+        return invertedValues;
+    }
+
+    public void putAll(Dictionary otherDictionary) {
+        otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> {
+            this.put(value);
+        });
+    }
+
+    @Override
+    public String toString() {
+        return this.getValues().toString();
     }
 }

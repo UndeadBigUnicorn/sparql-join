@@ -56,12 +56,19 @@ public class SparqlJoinApplication implements CommandLineRunner {
 
     public boolean simulation(Database database) {
         LOG.info("Simulation begin...");
+
+        // parallel hash join
+        LOG.info("****** PARALLEL JOIN ******");
+        Performance.measure(() -> parallelHashJoin(database), "Hash Join Simulation");
+
         // hash join
         LOG.info("****** HASH JOIN ******");
         Performance.measure(() -> hashJoin(database), "Hash Join Simulation");
+
         // sort merge simulation
         LOG.info("****** SORT-MERGE JOIN ******");
         Performance.measure(() -> sortMergeJoin(database), "Sort-Merge Join Simulation");
+
         return true;
     }
 
@@ -81,6 +88,32 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 "wsdbm:likes",
                 JoinOn.SUBJECT);
         ComplexTable joinedTable = joinService.hashJoin(
+                followsFriendsLikesTable,
+                database.tables().get("rev:hasReview").toComplex(),
+                "wsdbm:likes",
+                JoinOn.OBJECT,
+                "rev:hasReview",
+                JoinOn.SUBJECT);
+        LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
+        return joinedTable;
+    }
+
+    public ComplexTable parallelHashJoin(Database database) {
+        ComplexTable followsFriendsTable = joinService.parallelHashJoin(
+                database.tables().get("wsdbm:follows").toComplex(),
+                database.tables().get("wsdbm:friendOf").toComplex(),
+                "wsdbm:follows",
+                JoinOn.OBJECT,
+                "wsdbm:friendOf",
+                JoinOn.SUBJECT);
+        ComplexTable followsFriendsLikesTable = joinService.parallelHashJoin(
+                followsFriendsTable,
+                database.tables().get("wsdbm:likes").toComplex(),
+                "wsdbm:friendOf",
+                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT);
+        ComplexTable joinedTable = joinService.parallelHashJoin(
                 followsFriendsLikesTable,
                 database.tables().get("rev:hasReview").toComplex(),
                 "wsdbm:likes",
