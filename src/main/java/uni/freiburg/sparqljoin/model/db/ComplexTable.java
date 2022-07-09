@@ -3,9 +3,6 @@ package uni.freiburg.sparqljoin.model.db;
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Table that holds multiple properties with complex subject-object property values
@@ -13,56 +10,41 @@ import java.util.stream.Stream;
  */
 public class ComplexTable {
 
-    private final Set<String> properties;
+    private final Dictionary propertyDictionary;
 
     private final PropertyValues<JoinedItems> items;
 
-    private final Dictionary dictionary;
+    private final Dictionary objectDictionary;
 
-    public ComplexTable(Set<String> properties) {
-        this.properties = properties;
+    public ComplexTable(Dictionary propertyDictionary) {
+        this.propertyDictionary = propertyDictionary;
         this.items = new PropertyValues<>();
-        this.dictionary = new Dictionary();
+        this.objectDictionary = new Dictionary();
     }
 
-    public ComplexTable(Set<String> properties, Dictionary dictionary) {
-        this.properties = properties;
-        this.dictionary = dictionary;
+    public ComplexTable(Dictionary propertyDictionary, Dictionary objectDictionary) {
+        this.propertyDictionary = propertyDictionary;
+        this.objectDictionary = objectDictionary;
         this.items = new PropertyValues<>();
     }
 
-    public ComplexTable(Set<String> properties, Dictionary dictionary, PropertyValues<JoinedItems> items) {
-        this.properties = properties;
+    public ComplexTable(Dictionary propertyDictionary, Dictionary objectDictionary, PropertyValues<JoinedItems> items) {
+        this.propertyDictionary = propertyDictionary;
         this.items = items;
-        this.dictionary = dictionary;
+        this.objectDictionary = objectDictionary;
     }
 
-    public Set<String> getProperties() {
-        return properties;
+    public Dictionary getPropertyDictionary() {
+        return propertyDictionary;
     }
 
     /**
-     * Insert items, dictionary values must already exist
+     * Insert items, adding missing object dictionary entries
      *
      * @param items to save
      */
     public void insert(JoinedItems items) {
         this.items.put(items);
-
-        // Add properties if not exists
-        this.properties.addAll(items.values().keySet());
-    }
-
-    /**
-     * Insert items, adding missing dictionary entries
-     *
-     * @param items to save
-     */
-    public void insert(JoinedItems items, Dictionary dictionary) {
-        insert(items);
-
-        // Add dictionary entries if not exists
-        this.dictionary.putAll(dictionary);
     }
 
     /**
@@ -72,24 +54,30 @@ public class ComplexTable {
      */
     public void insertComplexTable(ComplexTable otherTable) {
         otherTable.getValues().forEach(joinedItems -> {
-            joinedItems.values().forEach((property, propertyValue) -> {
-                String itemObjectStr = otherTable.getDictionary().getValues().get((long) propertyValue.object());
-                if (propertyValue.type() == DataType.STRING) {
+            joinedItems.values().forEach((otherProperty, otherPropertyValue) -> {
+                String propertyStr = otherTable.getPropertyDictionary().getValues().get(otherProperty);
+                assert propertyStr != null;
+
+                Integer propertyInteger = this.getPropertyDictionary().getInvertedValues().get(propertyStr);
+                if (propertyInteger == null) {
+                    propertyInteger = this.getPropertyDictionary().put(propertyStr);
+                }
+
+                int object = otherPropertyValue.object();
+                if (otherPropertyValue.type() == DataType.STRING) {
                     // Object is a string
-                    Long itemObjectKey = this.getDictionary().getInvertedValues().get(itemObjectStr);
+                    String itemObjectStr = otherTable.getObjectDictionary().getValues().get((long) otherPropertyValue.object());
+                    Integer itemObjectKey = this.getObjectDictionary().getInvertedValues().get(itemObjectStr);
                     if (itemObjectKey == null) {
                         // Does not exist yet, generate a new value
-                        itemObjectKey = this.getDictionary().put(itemObjectStr);
+                        itemObjectKey = this.getObjectDictionary().put(itemObjectStr);
                     }
-
-                    joinedItems.values().put(property, new Item<>(propertyValue.subject(), itemObjectKey.intValue(), propertyValue.type()));
+                    object = itemObjectKey.intValue();
                 }
+                joinedItems.values().put(propertyInteger, new Item(otherPropertyValue.subject(), object, otherPropertyValue.type()));
             });
 
             this.items.put(joinedItems);
-
-            // Add properties if not exists
-            this.properties.addAll(joinedItems.values().keySet());
         });
     }
 
@@ -102,22 +90,7 @@ public class ComplexTable {
         return this.items.getValues();
     }
 
-    public Dictionary getDictionary() {
-        return dictionary;
+    public Dictionary getObjectDictionary() {
+        return objectDictionary;
     }
-
-    /**
-     * Join 2 tables
-     *
-     * @param another table to join
-     * @param newDict joined dictionary
-     * @param values  new property values
-     * @return joined ComplexTable
-     */
-    public ComplexTable join(ComplexTable another, Dictionary newDict, PropertyValues<JoinedItems> values) {
-        // concat properties of 2 tables
-        Set<String> properties = Stream.concat(this.getProperties().stream(), another.getProperties().stream()).collect(Collectors.toSet());
-        return new ComplexTable(properties, newDict, values);
-    }
-
 }

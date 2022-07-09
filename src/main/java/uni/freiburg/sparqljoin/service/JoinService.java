@@ -25,7 +25,10 @@ public class JoinService {
     public ComplexTable hashJoin(ComplexTable R, ComplexTable S,
                                  String joinPropertyR, JoinOn joinOnR,
                                  String joinPropertyS, JoinOn joinOnS) {
-        return join(new HashJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        int joinPropertyRInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyR);
+        int joinPropertySInt = S.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
+
+        return join(new HashJoin(), R, S, joinPropertyRInt, joinOnR, joinPropertySInt, joinOnS);
     }
 
     /**
@@ -41,7 +44,10 @@ public class JoinService {
     public ComplexTable parallelHashJoin(ComplexTable R, ComplexTable S,
                                  String joinPropertyR, JoinOn joinOnR,
                                  String joinPropertyS, JoinOn joinOnS) {
-        return join(new ParallelHashJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        int joinPropertyRInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyR);
+        int joinPropertySInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
+
+        return join(new ParallelHashJoin(), R, S, joinPropertyRInt, joinOnR, joinPropertySInt, joinOnS);
     }
 
     /**
@@ -57,7 +63,10 @@ public class JoinService {
     public ComplexTable sortMergeJoin(ComplexTable R, ComplexTable S,
                                  String joinPropertyR, JoinOn joinOnR,
                                  String joinPropertyS, JoinOn joinOnS) {
-        return join(new SortMergeJoin(), R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        int joinPropertyRInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyR);
+        int joinPropertySInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
+
+        return join(new SortMergeJoin(), R, S, joinPropertyRInt, joinOnR, joinPropertySInt, joinOnS);
     }
 
     /**
@@ -72,10 +81,10 @@ public class JoinService {
      * @return              joined table
      */
     private ComplexTable join(AbstractJoin joiner, ComplexTable R, ComplexTable S,
-                              String joinPropertyR, JoinOn joinOnR,
-                              String joinPropertyS, JoinOn joinOnS) {
+                              int joinPropertyR, JoinOn joinOnR,
+                              int joinPropertyS, JoinOn joinOnS) {
         LOG.debug("Joining table '{}' on '{}'.{} = '{}'.{} ...",
-                R.getProperties(), joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+                R.getPropertyDictionary(), R.getPropertyDictionary().get(joinPropertyR), joinOnR, R.getPropertyDictionary().get(joinPropertyS), joinOnS);
         ComplexTable joinedTable = Performance.measure(() ->
                 joiner.join(R, S, joinPropertyR, joinOnR, joinPropertyS,  joinOnS), String.format("%s", joiner.getClass().getSimpleName())
         );
@@ -84,6 +93,4 @@ public class JoinService {
         LOG.debug("Joined table length: {}", joinedTable.getValues().size());
         return joinedTable;
     }
-
-
 }

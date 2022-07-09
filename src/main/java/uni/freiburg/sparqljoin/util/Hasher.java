@@ -22,8 +22,8 @@ public class Hasher {
      * @param s to hash
      * @return hashed value
      */
-    public static long hash(final String s) {
-        long hash = 0;
+    public static int hash(final String s) {
+        int hash = 0;
         for(int i = 0; i < s.length(); ++i) {
             hash = s.charAt(i) + (hash << 6) + (hash << 16) - hash;
         }
@@ -35,7 +35,7 @@ public class Hasher {
      * @param a to hash
      * @return hashed value
      */
-    public static long hash(long a) {
+    public static int hash(int a) {
         a ^= (a << 13);
         a ^= (a >>> 17);
         a ^= (a << 5);

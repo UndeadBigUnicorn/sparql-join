@@ -10,5 +10,5 @@ import lombok.Builder;
  * @param type    type of the data that object represents
  */
 @Builder
-public record Item<V>(long subject, V object, DataType type) {
+public record Item(int subject, int object, DataType type) {
 }

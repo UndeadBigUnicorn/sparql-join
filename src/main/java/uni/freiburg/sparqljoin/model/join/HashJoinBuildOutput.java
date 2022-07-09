@@ -10,19 +10,19 @@ import java.util.List;
  */
 public class HashJoinBuildOutput extends BuildOutput {
 
-    private final HashMap<Long, List<JoinedItems>> partition;
+    private final HashMap<Integer, List<JoinedItems>> partition;
 
-    public HashJoinBuildOutput(HashMap<Long, List<JoinedItems>> partition) {
+    public HashJoinBuildOutput(HashMap<Integer, List<JoinedItems>> partition) {
         this.partition = partition;
     }
 
-    public HashMap<Long, List<JoinedItems>> getPartition() {
+    public HashMap<Integer, List<JoinedItems>> getPartition() {
         return partition;
     }
 
     public void mergeFrom(HashJoinBuildOutput other) {
         other.getPartition().forEach((key, joinedItems) -> {
-            val matchingJoinedItems = this.partition.get(key);
+            List<JoinedItems> matchingJoinedItems = this.partition.get(key);
             if (matchingJoinedItems != null) {
                 matchingJoinedItems.addAll(joinedItems);
             } else {
