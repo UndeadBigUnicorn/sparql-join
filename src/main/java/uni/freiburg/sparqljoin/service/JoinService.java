@@ -45,7 +45,7 @@ public class JoinService {
                                  String joinPropertyR, JoinOn joinOnR,
                                  String joinPropertyS, JoinOn joinOnS) {
         int joinPropertyRInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyR);
-        int joinPropertySInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
+        int joinPropertySInt = S.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
 
         return join(new ParallelHashJoin(), R, S, joinPropertyRInt, joinOnR, joinPropertySInt, joinOnS);
     }
@@ -64,7 +64,7 @@ public class JoinService {
                                  String joinPropertyR, JoinOn joinOnR,
                                  String joinPropertyS, JoinOn joinOnS) {
         int joinPropertyRInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyR);
-        int joinPropertySInt = R.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
+        int joinPropertySInt = S.getPropertyDictionary().getInvertedValues().get(joinPropertyS);
 
         return join(new SortMergeJoin(), R, S, joinPropertyRInt, joinOnR, joinPropertySInt, joinOnS);
     }
