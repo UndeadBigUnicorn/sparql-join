@@ -63,16 +63,15 @@ public class ComplexTable {
                     propertyInteger = this.getPropertyDictionary().put(propertyStr);
                 }
 
-                int object = otherPropertyValue.object();
+                Integer object = otherPropertyValue.object();
                 if (otherPropertyValue.type() == DataType.STRING) {
                     // Object is a string
-                    String itemObjectStr = otherTable.getObjectDictionary().getValues().get((long) otherPropertyValue.object());
-                    Integer itemObjectKey = this.getObjectDictionary().getInvertedValues().get(itemObjectStr);
-                    if (itemObjectKey == null) {
+                    String objectStr = otherTable.getObjectDictionary().getValues().get(object);
+                    object = this.getObjectDictionary().getInvertedValues().get(objectStr);
+                    if (object == null) {
                         // Does not exist yet, generate a new value
-                        itemObjectKey = this.getObjectDictionary().put(itemObjectStr);
+                        object = this.getObjectDictionary().put(objectStr);
                     }
-                    object = itemObjectKey.intValue();
                 }
                 joinedItems.values().put(propertyInteger, new Item(otherPropertyValue.subject(), object, otherPropertyValue.type()));
             });

@@ -19,10 +19,10 @@ public class Dictionary {
         this.index = 1;
     }
 
-    public Dictionary(HashMap<Integer, String> values, HashMap<String, Integer> invertedValues) {
+    public Dictionary(HashMap<Integer, String> values, HashMap<String, Integer> invertedValues, int index) {
         this.values = values;
         this.invertedValues = invertedValues;
-        this.index = 1;
+        this.index = index;
     }
 
     /**
@@ -65,9 +65,7 @@ public class Dictionary {
     }
 
     public void putAll(Dictionary otherDictionary) {
-        otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> {
-            this.put(value);
-        });
+        otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> this.put(value));
     }
 
     @Override
@@ -75,11 +73,23 @@ public class Dictionary {
         return this.getValues().toString();
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Dictionary clone() {
         //noinspection unchecked
         return new Dictionary(
                 (HashMap<Integer, String>) this.values.clone(),
-                (HashMap<String, Integer>) this.invertedValues.clone());
+                (HashMap<String, Integer>) this.invertedValues.clone(),
+                this.index);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() != Dictionary.class) return false;
+
+        Dictionary other = (Dictionary) obj;
+        return this.values.equals(other.values) &&
+                this.invertedValues.equals(other.invertedValues) &&
+                this.index == other.index;
     }
 }

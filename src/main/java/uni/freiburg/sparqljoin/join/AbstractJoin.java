@@ -32,7 +32,6 @@ public interface AbstractJoin {
         BuildOutput buildOutput = build(R, joinPropertyR, joinOnR);
         ComplexTable probeOutput = probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
 
-
         // Remove unnecessary dictionary entries
         ComplexTable joinResult = new ComplexTable(new Dictionary());
         joinResult.insertComplexTable(probeOutput);
@@ -70,32 +69,38 @@ public interface AbstractJoin {
     /**
      * Merge 2 tuples into a single with all properties. Merge the dictionaries.
      *
-     * @param joinedItems      Output relation where the new tuple should be added
-     * @param outputDictionary Dictionary of the output relation. Entries from the R relation must have been added before.
-     * @param joinedItemsR     Items from R relation
-     * @param joinedItemsS     Items from S relation
-     * @param dictionaryS      S table dictionary
+     * @param joinedItems              Output relation where the new tuple should be added
+     * @param outputObjectDictionary   Dictionary of the output relation. Entries from the R relation must have been added before.
+     * @param outputPropertyDictionary Dictionary containing the properties. Entries from the R relation must have been added before.
+     * @param joinedItemsR             Items from R relation
+     * @param joinedItemsS             Items from S relation
+     * @param dictionaryS              S table dictionary
      */
-    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, Dictionary outputDictionary, JoinedItems joinedItemsR, JoinedItems joinedItemsS, Dictionary dictionaryS) {
+    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, Dictionary outputPropertyDictionary, Dictionary propertyDictionaryS, Dictionary outputObjectDictionary, JoinedItems joinedItemsR, JoinedItems joinedItemsS, Dictionary dictionaryS) {
         // clone reference item values to avoid overwriting values by reference
         @SuppressWarnings("unchecked") HashMap<Integer, Item> outputValues = (HashMap<Integer, Item>) joinedItemsR.values().clone();
 
         // add new property values
-        joinedItemsS.values().forEach((property, propertyItem) -> {
+        joinedItemsS.values().forEach((propertyIntS, propertyItem) -> {
+            String property = propertyDictionaryS.getValues().get(propertyIntS);
+            Integer outputPropertyInt = outputPropertyDictionary.getInvertedValues().get(property);
+            if (outputPropertyInt == null) {
+                outputPropertyInt = outputPropertyDictionary.put(property);
+            }
+
             if (propertyItem.type().equals(DataType.STRING)) {
                 // object was a string -> put value into new dictionary, update item value index
                 // TODO write a test for this
 
-                int propertyItemObjectIntRepresentation = outputDictionary.put(dictionaryS.get(propertyItem.object()));
-
-                outputValues.put(property, new Item(
+                int propertyItemObjectIntRepresentation = outputObjectDictionary.put(dictionaryS.get(propertyItem.object()));
+                outputValues.put(outputPropertyInt, new Item(
                         propertyItem.subject(),
                         propertyItemObjectIntRepresentation,
                         propertyItem.type()
                 ));
             } else {
                 // else put as it is
-                outputValues.put(property, new Item(
+                outputValues.put(outputPropertyInt, new Item(
                         propertyItem.subject(),
                         propertyItem.object(),
                         propertyItem.type())

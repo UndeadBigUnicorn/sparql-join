@@ -75,10 +75,11 @@ public class HashJoin implements AbstractJoin {
 
         Dictionary referenceTableDictionary = R.getObjectDictionary();
         Dictionary probeTableDictionary = S.getObjectDictionary();
+        Dictionary probeTablePropertyDictionary = S.getPropertyDictionary();
 
         // Output variables
-        Dictionary outputDictionary = new Dictionary();
-        outputDictionary.putAll(referenceTableDictionary);
+        Dictionary outputObjectDictionary = referenceTableDictionary.clone();
+        Dictionary outputPropertyDictionary = R.getPropertyDictionary().clone();
         List<JoinedItems> joinedItems = new ArrayList<>();
 
         // For each tuple in S...
@@ -111,17 +112,13 @@ public class HashJoin implements AbstractJoin {
                     int probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
                         // No hash collision
-                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceJoinedItems, probeJoinedItems, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceJoinedItems, probeJoinedItems, probeTableDictionary);
                     }
                 }
             }
         });
 
-        // Concatenate properties of the two tables
-        Dictionary outputPropertyDictionary = R.getPropertyDictionary().clone();
-        outputPropertyDictionary.putAll(S.getPropertyDictionary());
-
-        return new ComplexTable(outputPropertyDictionary, outputDictionary, new PropertyValues<>(joinedItems));
+        return new ComplexTable(outputPropertyDictionary, outputObjectDictionary, new PropertyValues<>(joinedItems));
     }
 
 }

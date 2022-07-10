@@ -703,14 +703,16 @@ public class JoinServiceTest {
         // check sizes
         Assert.assertEquals(String.format("Joined Table size should be %d, got %d", expected.getValues().size(), actual.getValues().size()),
                 expected.getValues().size(), actual.getValues().size());
+
         // check properties
         Assert.assertEquals(String.format("Joined Table should have properties '%s', got '%s'", expected.getPropertyDictionary(), actual.getPropertyDictionary()),
                 expected.getPropertyDictionary(), actual.getPropertyDictionary());
+
         // check dictionaries
-        var expectedDictValues = expected.getObjectDictionary();
-        var actualDictValues = actual.getObjectDictionary();
-        assertDictionariesEqual(expectedDictValues, actualDictValues);
-        assertJoinedValuesEqual(expected.getValues(), actual.getValues(), expectedDictValues, actualDictValues);
+        assertDictionariesEqual(expected.getObjectDictionary(), actual.getObjectDictionary());
+
+        // check tuples
+        assertJoinedValuesEqual(expected.getValues(), actual.getValues(), expected.getObjectDictionary(), actual.getObjectDictionary());
     }
 
     private void assertDictionariesEqual(Dictionary d1, Dictionary d2) {

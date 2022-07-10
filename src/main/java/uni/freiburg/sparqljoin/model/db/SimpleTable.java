@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Table that holds single property with simple Integer subject-object property values
  */
-public class SimpleTable{
+public class SimpleTable {
 
     private final String property;
 
@@ -41,6 +41,7 @@ public class SimpleTable{
 
     /**
      * Save value
+     *
      * @param item to save
      */
     public void insert(Item item) {
@@ -49,6 +50,7 @@ public class SimpleTable{
 
     /**
      * Get all values in the table
+     *
      * @return List of values
      */
     public List<Item> list() {
@@ -61,14 +63,15 @@ public class SimpleTable{
 
     /**
      * Transform simple table to complex one
+     *
      * @return ComplexTable
      */
     public ComplexTable toComplex() {
         Dictionary propertyDictionary = new Dictionary();
-        Integer propertyLong = propertyDictionary.put(getProperty());
-        List<JoinedItems> values = list().stream().map((item) ->  {
+        Integer propertyInteger = propertyDictionary.put(getProperty());
+        List<JoinedItems> values = list().stream().map((item) -> {
             HashMap<Integer, Item> itemMap = new HashMap<>();
-            itemMap.put(propertyLong, item);
+            itemMap.put(propertyInteger, item);
             return new JoinedItems(item.subject(), itemMap);
         }).collect(Collectors.toList());
         return new ComplexTable(propertyDictionary, getObjectDictionary(), new PropertyValues<>(values));
