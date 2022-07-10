@@ -25,17 +25,19 @@ public class HashJoin implements AbstractJoin {
      * @return build output - HashMap with key = hashed join key, value = list of JoinedItems
      */
     @Override
-    public HashJoinBuildOutput build(ComplexTable table, String property, JoinOn joinOn) {
+    public HashJoinBuildOutput build(ComplexTable table, int property, JoinOn joinOn) {
         LOG.info("Starting build phase");
 
-        HashMap<Long, List<JoinedItems>> buildOutput = new HashMap<>();
+        HashMap<Integer, List<JoinedItems>> buildOutput = new HashMap<>();
         table.getValues().forEach(joinedItems -> {
-            if (!joinedItems.values().containsKey(property)) {
+            Item item = joinedItems.values().get(property);
+            if (item == null) {
                 return;
             }
-            Item<Integer> item = joinedItems.values().get(property);
-            long key = joinOn == JoinOn.SUBJECT ? item.subject() : item.object();
-            long hashedKey = Hasher.hash(key);
+
+            int key = joinOn == JoinOn.SUBJECT ? item.subject() : item.object();
+            int hashedKey = Hasher.hash(key);
+
             if (buildOutput.containsKey(hashedKey)) {
                 List<JoinedItems> list = buildOutput.get(hashedKey);
                 list.add(joinedItems);
@@ -65,21 +67,24 @@ public class HashJoin implements AbstractJoin {
      */
     @Override
     public ComplexTable probe(BuildOutput partitions, ComplexTable R, ComplexTable S,
-                              String joinPropertyR, JoinOn joinOnR,
-                              String joinPropertyS, JoinOn joinOnS) {
+                              int joinPropertyR, JoinOn joinOnR,
+                              int joinPropertyS, JoinOn joinOnS) {
         LOG.info("Starting probe phase");
 
-        HashMap<Long, List<JoinedItems>> hashedReferenceTablePartitions = ((HashJoinBuildOutput) partitions).getPartition();
+        HashMap<Integer, List<JoinedItems>> hashedReferenceTablePartitions = ((HashJoinBuildOutput) partitions).getPartition();
 
-        Dictionary referenceTableDictionary = R.getDictionary();
-        Dictionary probeTableDictionary = S.getDictionary();
-        Dictionary outputDictionary = new Dictionary();
-        outputDictionary.putAll(referenceTableDictionary);
-        List<JoinedItems> joinedItems = new ArrayList<>(); // Output list
+        Dictionary referenceTableDictionary = R.getObjectDictionary();
+        Dictionary probeTableDictionary = S.getObjectDictionary();
+        Dictionary probeTablePropertyDictionary = S.getPropertyDictionary();
+
+        // Output variables
+        Dictionary outputObjectDictionary = referenceTableDictionary.clone();
+        Dictionary outputPropertyDictionary = R.getPropertyDictionary().clone();
+        List<JoinedItems> joinedItems = new ArrayList<>();
 
         // For each tuple in S...
         S.getValues().forEach(probeJoinedItems -> {
-            long hashedSKey;
+            int hashedSKey;
             if (joinOnS == JoinOn.SUBJECT) {
                 hashedSKey = Hasher.hash(probeJoinedItems.subject());
             } else {
@@ -99,28 +104,21 @@ public class HashJoin implements AbstractJoin {
                     // A match is found. Output the combined tuple.
 
                     // Get join property
-                    Item<Integer> referenceItem = referenceJoinedItems.values().get(joinPropertyR);
-                    Item<Integer> probeItem = probeJoinedItems.values().get(joinPropertyS);
+                    Item referenceItem = referenceJoinedItems.values().get(joinPropertyR);
+                    Item probeItem = probeJoinedItems.values().get(joinPropertyS);
 
                     // Check if there is a hash collision
-                    long referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
-                    long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
+                    int referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
+                    int probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
                         // No hash collision
-                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceJoinedItems, probeJoinedItems, referenceTableDictionary, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceJoinedItems, probeJoinedItems, probeTableDictionary);
                     }
                 }
             }
         });
 
-        // Concatenate properties of the two tables
-        // Use a set to remove duplicates
-        Set<String> set = new LinkedHashSet<>(R.getProperties());
-        set.addAll(S.getProperties());
-
-        Set<String> properties = new LinkedHashSet<>(set);
-
-        return new ComplexTable(properties, outputDictionary, new PropertyValues<>(joinedItems));
+        return new ComplexTable(outputPropertyDictionary, outputObjectDictionary, new PropertyValues<>(joinedItems));
     }
 
 }

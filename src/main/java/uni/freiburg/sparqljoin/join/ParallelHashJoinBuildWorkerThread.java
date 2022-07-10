@@ -11,13 +11,13 @@ public class ParallelHashJoinBuildWorkerThread extends Thread {
     private final ParallelHashJoin join;
     private final ComplexTable buildRelationPart;
 
-    private final String joinProperty;
+    private final int joinProperty;
 
     private final JoinOn joinOn;
 
     private HashJoinBuildOutput output = null;
 
-    public ParallelHashJoinBuildWorkerThread(ParallelHashJoin join, ComplexTable buildRelationPart, String joinProperty, JoinOn joinOn) {
+    public ParallelHashJoinBuildWorkerThread(ParallelHashJoin join, ComplexTable buildRelationPart, int joinProperty, JoinOn joinOn) {
         this.join = join;
         this.buildRelationPart = buildRelationPart;
         this.joinProperty = joinProperty;

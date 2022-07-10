@@ -95,12 +95,12 @@ public class DataLoaderService {
             tables.put(triplet.property(), new SimpleTable(triplet.property()));
         }
         SimpleTable table = tables.get(triplet.property());
-        Dictionary dict = table.getDictionary();
+        Dictionary dict = table.getObjectDictionary();
 
-        long subjectKey = extractKey(triplet.subject(), dict);
-        int objectKey = (int) extractKey(triplet.object(), dict);
+        int subjectKey = extractKey(triplet.subject(), dict);
+        int objectKey = extractKey(triplet.object(), dict);
 
-        table.insert(new Item<>(subjectKey, objectKey, typeOf(triplet.object())));
+        table.insert(new Item(subjectKey, objectKey, typeOf(triplet.object())));
 
     }
 
@@ -114,7 +114,7 @@ public class DataLoaderService {
      * @param dict  The dictionary where the mapping between string and int will be stored
      * @return integer representation
      */
-    private long extractKey(String value, Dictionary dict) {
+    private int extractKey(String value, Dictionary dict) {
         return switch (typeOf(value)) {
             case STRING -> dict.put(value);
             case INTEGER -> Integer.parseInt(value);

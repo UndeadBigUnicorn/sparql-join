@@ -16,17 +16,17 @@ public class ParallelHashJoinProbeWorkerThread extends Thread {
 
     private final ComplexTable S;
 
-    private final String joinPropertyR;
+    private final int joinPropertyR;
 
     private final JoinOn joinOnR;
 
-    private final String joinPropertyS;
+    private final int joinPropertyS;
 
     private final JoinOn joinOnS;
 
     private ComplexTable output = null;
 
-    public ParallelHashJoinProbeWorkerThread(ParallelHashJoin join, BuildOutput buildOutput, ComplexTable R, ComplexTable S, String joinPropertyR, JoinOn joinOnR, String joinPropertyS, JoinOn joinOnS) {
+    public ParallelHashJoinProbeWorkerThread(ParallelHashJoin join, BuildOutput buildOutput, ComplexTable R, ComplexTable S, int joinPropertyR, JoinOn joinOnR, int joinPropertyS, JoinOn joinOnS) {
         this.join = join;
         this.buildOutput = buildOutput;
         this.R = R;

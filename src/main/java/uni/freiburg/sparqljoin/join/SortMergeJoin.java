@@ -17,25 +17,26 @@ public class SortMergeJoin implements AbstractJoin {
 
     /**
      * Sort two tables by the join attribute and merge by join condition
-     * @param R              R relation join table
-     * @param S              S relation join table
-     * @param joinPropertyR  name of the property to join on from table R
-     * @param joinOnR        join field in property from R
-     * @param joinPropertyS  name of the property to join on from table S
-     * @param joinOnS        join field in property from S
-     * @return               new joined table
+     *
+     * @param R             R relation join table
+     * @param S             S relation join table
+     * @param joinPropertyR name of the property to join on from table R
+     * @param joinOnR       join field in property from R
+     * @param joinPropertyS name of the property to join on from table S
+     * @param joinOnS       join field in property from S
+     * @return new joined table
      */
     @Override
     public ComplexTable join(ComplexTable R, ComplexTable S,
-                             String joinPropertyR, JoinOn joinOnR,
-                             String joinPropertyS, JoinOn joinOnS) {
+                             int joinPropertyR, JoinOn joinOnR,
+                             int joinPropertyS, JoinOn joinOnS) {
         MergeJoinBuildOutput sortedR = (MergeJoinBuildOutput) build(R, joinPropertyR, joinOnR);
         MergeJoinBuildOutput sortedS = (MergeJoinBuildOutput) build(S, joinPropertyS, joinOnS);
         MergeJoinBuildOutput buildOutput = new MergeJoinBuildOutput(sortedR.getValuesR(), sortedS.getValuesR());
         ComplexTable probeOutput = probe(buildOutput, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
 
         // Remove unnecessary dictionary entries
-        ComplexTable joinResult = new ComplexTable(new LinkedHashSet<>());
+        ComplexTable joinResult = new ComplexTable(new Dictionary());
         joinResult.insertComplexTable(probeOutput);
 
         return joinResult;
@@ -43,13 +44,14 @@ public class SortMergeJoin implements AbstractJoin {
 
     /**
      * Sort table values by join attributes
+     *
      * @param table    build input
      * @param property property value to join on name of the property to join on from the reference table
      * @param joinOn   property field to join on
-     * @return         sorted table values
+     * @return sorted table values
      */
     @Override
-    public BuildOutput build(ComplexTable table, String property, JoinOn joinOn) {
+    public BuildOutput build(ComplexTable table, int property, JoinOn joinOn) {
         List<JoinedItems> values = table.getValues();
         values.sort(new JoinedItems.JoinedItemsComparator(property, joinOn));
         return new MergeJoinBuildOutput(values);
@@ -57,39 +59,41 @@ public class SortMergeJoin implements AbstractJoin {
 
     /**
      * Merge sorted lists by join condition
-     * @param partition      partition from the build phase
-     * @param R              R relation table for the reference
-     * @param S              S relation table to join
-     * @param joinPropertyR  name of the property to join on from table R
-     * @param joinOnR        join field in property from R
-     * @param joinPropertyS  name of the property to join on from table S
-     * @param joinOnS        join field in property from S
-     * @return               new joined table
+     *
+     * @param partition     partition from the build phase
+     * @param R             R relation table for the reference
+     * @param S             S relation table to join
+     * @param joinPropertyR name of the property to join on from table R
+     * @param joinOnR       join field in property from R
+     * @param joinPropertyS name of the property to join on from table S
+     * @param joinOnS       join field in property from S
+     * @return new joined table
      */
     @Override
     public ComplexTable probe(BuildOutput partition, ComplexTable R, ComplexTable S,
-                              String joinPropertyR, JoinOn joinOnR,
-                              String joinPropertyS, JoinOn joinOnS) {
+                              int joinPropertyR, JoinOn joinOnR,
+                              int joinPropertyS, JoinOn joinOnS) {
         MergeJoinBuildOutput buildOutput = (MergeJoinBuildOutput) partition;
         List<JoinedItems> referenceValues = buildOutput.getValuesR();
         List<JoinedItems> probeValues = buildOutput.getValuesS();
 
-        // create new dictionary for merge
-        Dictionary referenceTableDictionary = R.getDictionary();
-        Dictionary probeTableDictionary = S.getDictionary();
-        Dictionary outputDictionary = new Dictionary();
-        outputDictionary.putAll(referenceTableDictionary);
+        Dictionary referenceTableDictionary = R.getObjectDictionary();
+        Dictionary probeTableDictionary = S.getObjectDictionary();
+        Dictionary probeTablePropertyDictionary = S.getPropertyDictionary();
 
-        List<JoinedItems> joinedItems = new ArrayList<>(); // Output list
+        // Output variables
+        Dictionary outputObjectDictionary = referenceTableDictionary.clone();
+        Dictionary outputPropertyDictionary = R.getPropertyDictionary().clone();
+        List<JoinedItems> joinedItems = new ArrayList<>();
 
         int referenceRelIndex = 0;
         int probeRelIndex = 0;
 
-        while(referenceRelIndex < referenceValues.size() && probeRelIndex < probeValues.size()) {
+        while (referenceRelIndex < referenceValues.size() && probeRelIndex < probeValues.size()) {
             JoinedItems referenceItems = referenceValues.get(referenceRelIndex);
-            Item<Integer> referenceItem = referenceItems.values().get(joinPropertyR);
+            Item referenceItem = referenceItems.values().get(joinPropertyR);
             JoinedItems probeItems = probeValues.get(probeRelIndex);
-            Item<Integer> probeItem = probeItems.values().get(joinPropertyS);
+            Item probeItem = probeItems.values().get(joinPropertyS);
 
             long referenceJoinKey = joinOnR == JoinOn.SUBJECT ? referenceItem.subject() : referenceItem.object();
             long probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
@@ -97,22 +101,21 @@ public class SortMergeJoin implements AbstractJoin {
             // Forward pointers so that until a match is found
             if (referenceJoinKey > probeJoinKey) {
                 probeRelIndex++;
-            }
-            else if (referenceJoinKey < probeJoinKey){
+            } else if (referenceJoinKey < probeJoinKey) {
                 referenceRelIndex++;
             } else {
                 // Match is found
 
-                mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceItems, probeItems, referenceTableDictionary, probeTableDictionary);
+                mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceItems, probeItems, probeTableDictionary);
 
                 // output further tuples that match with reference item
                 int probeRelIndexPrime = probeRelIndex + 1;
                 while (probeRelIndexPrime < probeValues.size()) {
                     JoinedItems probeItemsNext = probeValues.get(probeRelIndexPrime);
-                    Item<Integer> probeItemNext = probeItemsNext.values().get(joinPropertyS);
+                    Item probeItemNext = probeItemsNext.values().get(joinPropertyS);
                     long probeJoinKeyNext = joinOnS == JoinOn.SUBJECT ? probeItemNext.subject() : probeItemNext.object();
                     if (referenceJoinKey == probeJoinKeyNext) {
-                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceItems, probeItemsNext, referenceTableDictionary, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceItems, probeItemsNext, probeTableDictionary);
                         probeRelIndexPrime++;
                     } else {
                         break;
@@ -120,13 +123,13 @@ public class SortMergeJoin implements AbstractJoin {
                 }
 
                 // output further tuples that match with probe item
-                int referenceRelIndexPrime = referenceRelIndex+1;
+                int referenceRelIndexPrime = referenceRelIndex + 1;
                 while (referenceRelIndexPrime < referenceValues.size()) {
                     JoinedItems referenceItemsNext = referenceValues.get(referenceRelIndexPrime);
-                    Item<Integer> referenceItemNext = referenceItemsNext.values().get(joinPropertyR);
+                    Item referenceItemNext = referenceItemsNext.values().get(joinPropertyR);
                     long referenceJoinKeyNext = joinOnR == JoinOn.SUBJECT ? referenceItemNext.subject() : referenceItemNext.object();
                     if (referenceJoinKeyNext == probeJoinKey) {
-                        mergeTuplesAndDictionaries(joinedItems, outputDictionary, referenceItemsNext, probeItems, referenceTableDictionary, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceItemsNext, probeItems, probeTableDictionary);
                         referenceRelIndexPrime++;
                     } else {
                         break;
@@ -137,14 +140,7 @@ public class SortMergeJoin implements AbstractJoin {
             }
         }
 
-        // Concatenate properties of the two tables
-        // Use a set to remove duplicates
-        Set<String> set = new LinkedHashSet<>(R.getProperties());
-        set.addAll(S.getProperties());
-
-        Set<String> properties = new LinkedHashSet<>(set);
-
-        return new ComplexTable(properties, outputDictionary, new PropertyValues<>(joinedItems));
+        return new ComplexTable(outputPropertyDictionary, outputObjectDictionary, new PropertyValues<>(joinedItems));
     }
 
 }

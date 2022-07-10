@@ -3,12 +3,12 @@ package uni.freiburg.sparqljoin.join;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uni.freiburg.sparqljoin.model.db.ComplexTable;
+import uni.freiburg.sparqljoin.model.db.Dictionary;
 import uni.freiburg.sparqljoin.model.join.HashJoinBuildOutput;
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 public class ParallelHashJoin extends HashJoin {
@@ -18,12 +18,12 @@ public class ParallelHashJoin extends HashJoin {
         List<ComplexTable> relationParts = new ArrayList<>();
 
         for (int i = 0; i < numParts; i++) {
-            relationParts.add(new ComplexTable(new LinkedHashSet<>()));
+            relationParts.add(new ComplexTable(relation.getPropertyDictionary(), relation.getObjectDictionary()));
         }
 
         int numProcessedElements = 0;
         for (JoinedItems items : relation.getValues()) {
-            relationParts.get(numProcessedElements % numParts).insert(items, relation.getDictionary());
+            relationParts.get(numProcessedElements % numParts).insert(items);
             numProcessedElements++;
         }
 
@@ -31,7 +31,7 @@ public class ParallelHashJoin extends HashJoin {
     }
 
     @Override
-    public ComplexTable join(ComplexTable R, ComplexTable S, String joinPropertyR, JoinOn joinOnR, String joinPropertyS, JoinOn joinOnS) {
+    public ComplexTable join(ComplexTable R, ComplexTable S, int joinPropertyR, JoinOn joinOnR, int joinPropertyS, JoinOn joinOnS) {
         // TODO clean code
         // TODO combine splitting R and S relations into one thread
 
@@ -89,7 +89,7 @@ public class ParallelHashJoin extends HashJoin {
         }
 
         // Combine probe thread results
-        ComplexTable joinResult = new ComplexTable(new LinkedHashSet<>());
+        ComplexTable joinResult = new ComplexTable(new Dictionary());
         for (ComplexTable threadOutput : probeOutputs) {
             joinResult.insertComplexTable(threadOutput);
         }

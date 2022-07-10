@@ -7,16 +7,22 @@ import java.util.HashMap;
  */
 public class Dictionary {
 
-    private final HashMap<Long, String> values;
+    private final HashMap<Integer, String> values;
 
-    private final HashMap<String, Long> invertedValues;
+    private final HashMap<String, Integer> invertedValues;
 
-    private long index;
+    private int index;
 
     public Dictionary() {
         this.values = new HashMap<>();
         this.invertedValues = new HashMap<>();
         this.index = 1;
+    }
+
+    public Dictionary(HashMap<Integer, String> values, HashMap<String, Integer> invertedValues, int index) {
+        this.values = values;
+        this.invertedValues = invertedValues;
+        this.index = index;
     }
 
     /**
@@ -25,7 +31,7 @@ public class Dictionary {
      * @param value to save
      * @return unique integer that represent putted value
      */
-    public long put(String value) {
+    public int put(String value) {
         // save value into the dictionary
         if (!this.invertedValues.containsKey(value)) {
             this.values.put(this.index, value);
@@ -42,30 +48,48 @@ public class Dictionary {
      * @param key index representation of the value
      * @return value from the dictionary
      */
-    public String get(long key) {
+    public String get(int key) {
         return this.values.get(key);
     }
 
-    public boolean containsKey(long key) {
+    public boolean containsKey(int key) {
         return this.values.containsKey(key);
     }
 
-    public HashMap<Long, String> getValues() {
+    public HashMap<Integer, String> getValues() {
         return values;
     }
 
-    public HashMap<String, Long> getInvertedValues() {
+    public HashMap<String, Integer> getInvertedValues() {
         return invertedValues;
     }
 
     public void putAll(Dictionary otherDictionary) {
-        otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> {
-            this.put(value);
-        });
+        otherDictionary.getValues().forEach((otherDictionaryIndex, value) -> this.put(value));
     }
 
     @Override
     public String toString() {
         return this.getValues().toString();
+    }
+
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    @Override
+    public Dictionary clone() {
+        //noinspection unchecked
+        return new Dictionary(
+                (HashMap<Integer, String>) this.values.clone(),
+                (HashMap<String, Integer>) this.invertedValues.clone(),
+                this.index);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() != Dictionary.class) return false;
+
+        Dictionary other = (Dictionary) obj;
+        return this.values.equals(other.values) &&
+                this.invertedValues.equals(other.invertedValues) &&
+                this.index == other.index;
     }
 }
