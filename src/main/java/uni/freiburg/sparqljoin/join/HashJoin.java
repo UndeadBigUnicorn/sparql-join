@@ -17,6 +17,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HashJoin implements AbstractJoin {
     private static final Logger LOG = LoggerFactory.getLogger(HashJoin.class);
 
+    @Override
+    public ComplexTable join(ComplexTable R, ComplexTable S, int joinPropertyR, JoinOn joinOnR, int joinPropertyS, JoinOn joinOnS) {
+        // Use the smaller relation of R and S as the build relation. Algorithm will run faster
+        if (R.getValues().size() < S.getValues().size()) {
+            BuildOutput output = build(R, joinPropertyR, joinOnR);
+            return probe(output, R, S, joinPropertyR, joinOnR, joinPropertyS, joinOnS);
+        } else {
+            BuildOutput output = build(S, joinPropertyS, joinOnS);
+            return probe(output, S, R, joinPropertyS, joinOnS, joinPropertyR, joinOnR);
+        }
+    }
+
     /**
      * Build a hash map partition over the join key:
      * for each item in relation R, calculate the hash of the join key and append the JoinedItems instance to the partition corresponding to the hashed join key

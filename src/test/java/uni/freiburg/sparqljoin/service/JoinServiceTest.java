@@ -753,14 +753,13 @@ public class JoinServiceTest {
                 expected.getValues().size(), actual.getValues().size());
 
         // check properties
-        Assert.assertEquals(String.format("Joined Table should have properties '%s', got '%s'", expected.getPropertyDictionary(), actual.getPropertyDictionary()),
-                expected.getPropertyDictionary(), actual.getPropertyDictionary());
+        assertDictionariesEqual(expected.getPropertyDictionary(), actual.getPropertyDictionary());
 
         // check dictionaries
         assertDictionariesEqual(expected.getObjectDictionary(), actual.getObjectDictionary());
 
         // check tuples
-        assertJoinedValuesEqual(expected.getValues(), actual.getValues(), expected.getObjectDictionary(), actual.getObjectDictionary());
+        assertJoinedValuesEqual(expected.getValues(), actual.getValues(), expected, actual);
     }
 
     private void assertDictionariesEqual(Dictionary d1, Dictionary d2) {
@@ -780,26 +779,35 @@ public class JoinServiceTest {
         }
     }
 
-    private void assertJoinedValuesEqual(List<JoinedItems> j1, List<JoinedItems> j2, Dictionary d1, Dictionary d2) {
+    private void assertJoinedValuesEqual(List<JoinedItems> j1, List<JoinedItems> j2, ComplexTable t1, ComplexTable t2) {
         Assert.assertEquals("Joined Table should have the same length (" + j1.size() + " vs. " + j2.size() + ")", j1.size(), j2.size());
 
+        Dictionary d1 = t1.getObjectDictionary();
+        Dictionary p1 = t1.getPropertyDictionary();
+        Dictionary d2 = t2.getObjectDictionary();
+        Dictionary p2 = t2.getPropertyDictionary();
         // For each JoinedItems in j1
         for (JoinedItems joinedItems1 : j1) {
             // Find it in j2
             boolean found = false;
             for (JoinedItems joinedItems2 : j2) {
                 JoinedItems tempJoinedItem2 = joinedItems2.clone();
-                // Switch dictionaries in tempJoinedItem2 so comparing becomes very easy
-                for (var property : tempJoinedItem2.values().keySet()) {
-                    if (tempJoinedItem2.values().get(property).type() == DataType.STRING) {
-                        String value2 = d2.get(tempJoinedItem2.values().get(property).object());
+                // Switch dictionaries and properties in tempJoinedItem2 so comparing becomes very easy
+                for (var property : joinedItems2.values().keySet()) {
+                    Item item = joinedItems2.values().get(property);
+                    String propertyValue = p2.get(property);
+                    int commonPropertyInt = p1.getInvertedValues().get(propertyValue);
+                    int objectInt = item.object();
+                    if (item.type() == DataType.STRING) {
+                        String value2 = d2.get(item.object());
                         if (d1.getInvertedValues().containsKey(value2)) {
-                            tempJoinedItem2.values().put(property,
-                                    new Item(tempJoinedItem2.subject(),
-                                            d1.getInvertedValues().get(value2),
-                                            tempJoinedItem2.values().get(property).type()));
+                            objectInt = d1.getInvertedValues().get(value2);
                         }
                     }
+                    tempJoinedItem2.values().put(commonPropertyInt,
+                            new Item(item.subject(),
+                                    objectInt,
+                                    item.type()));
                 }
                 if (joinedItems1.equals(tempJoinedItem2)) {
                     found = true;
@@ -809,8 +817,10 @@ public class JoinServiceTest {
 
             if (!found) {
                 System.out.println("Expected: " + j1);
+                System.out.println("using properties: " + p1);
                 System.out.println("using dictionary: " + d1);
                 System.out.println("Actual: " + j2);
+                System.out.println("using properties: " + p2);
                 System.out.println("using dictionary: " + d2);
                 Assert.fail("Joined Table should have correctly joined values with correct structure");
             }
