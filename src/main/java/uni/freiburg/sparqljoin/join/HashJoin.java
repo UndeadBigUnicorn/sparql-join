@@ -8,6 +8,8 @@ import uni.freiburg.sparqljoin.model.join.*;
 import uni.freiburg.sparqljoin.util.Hasher;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class implements hash join algorithm
@@ -82,8 +84,19 @@ public class HashJoin implements AbstractJoin {
         Dictionary outputPropertyDictionary = R.getPropertyDictionary().clone();
         List<JoinedItems> joinedItems = new ArrayList<>();
 
+        AtomicInteger numProcessedRecords = new AtomicInteger(0);
+        int numRecords = S.getValues().size();
+        AtomicBoolean printedProgress = new AtomicBoolean(false);
+
         // For each tuple in S...
         S.getValues().forEach(probeJoinedItems -> {
+            if (numProcessedRecords.incrementAndGet() % 10000 == 0 && !printedProgress.get()) {
+                System.out.println("Iterate over S tuples. " + numProcessedRecords + "/" + numRecords + " records = " + (int)(100f * numProcessedRecords.get() / numRecords) + "%");
+                printedProgress.set(true);
+            } else {
+                printedProgress.set(false);
+            }
+
             int hashedSKey;
             if (joinOnS == JoinOn.SUBJECT) {
                 hashedSKey = Hasher.hash(probeJoinedItems.subject());
