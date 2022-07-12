@@ -8,6 +8,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uni.freiburg.sparqljoin.join.JoinOn;
 import uni.freiburg.sparqljoin.model.db.*;
 import uni.freiburg.sparqljoin.model.join.JoinedItems;
+import uni.freiburg.sparqljoin.model.join.JoinedItemsOptimized;
 
 import java.util.HashMap;
 import java.util.List;
@@ -747,6 +748,145 @@ public class JoinServiceTest {
         compareTables(expectedJoinedUserIdGivenNameFamilyNameFollowsTable, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
     }
 
+    /**
+     * Test sequence parallel hash join of 1 property tables
+     */
+    @Test
+    public void testSimpleParallelOptimizedJoin() {
+        Database database = new Database(initSimpleTables());
+
+        // join userId on givenName
+
+        HashMap<String, Dictionary> expectedDict = new HashMap<>();
+        expectedDict.put("wsdbm:userId", database.tables().get("wsdbm:userId").getObjectDictionary());
+        expectedDict.put("foaf:givenName", database.tables().get("foaf:givenName").getObjectDictionary());
+
+        HashMap<String, PropertyValues<Item>> expectedValues1 = new HashMap<>();
+        expectedValues1.put("wsdbm:userId", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1806723, DataType.INTEGER),
+                        new Item(2, 1936247, DataType.INTEGER),
+                        new Item(24, 15125125, DataType.INTEGER))));
+        expectedValues1.put("foaf:givenName", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1, DataType.STRING),
+                        new Item(2, 2, DataType.STRING),
+                        new Item(24, 3, DataType.STRING))));
+
+        VerticallyPartitionedTable expectedJoin1Table = new VerticallyPartitionedTable(expectedDict, expectedValues1);
+
+        VerticallyPartitionedTable actualJoinedUserIdGivenNameTable = joinService.parallelHashJoin(
+                database.tables().get("wsdbm:userId").toVerticallyPartitioned(),
+                database.tables().get("foaf:givenName").toVerticallyPartitioned(),
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "foaf:givenName",
+                JoinOn.SUBJECT);
+
+        compareTables(expectedJoin1Table, actualJoinedUserIdGivenNameTable);
+
+        // join userId, givenName on familyName
+
+        expectedDict.put("foaf:familyName", database.tables().get("foaf:familyName").getObjectDictionary());
+
+        var expectedValues2 = (HashMap<String, PropertyValues<Item>>) expectedValues1.clone();
+        expectedValues2.put("foaf:familyName", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1, DataType.STRING),
+                        new Item(2, 2, DataType.STRING),
+                        new Item(24, 3, DataType.STRING))));
+
+        VerticallyPartitionedTable expectedJoin2Table = new VerticallyPartitionedTable(expectedDict, expectedValues2);
+
+        VerticallyPartitionedTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.parallelHashJoin(
+                actualJoinedUserIdGivenNameTable,
+                database.tables().get("foaf:familyName").toVerticallyPartitioned(),
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "foaf:familyName",
+                JoinOn.SUBJECT);
+
+        compareTables(expectedJoin2Table, actualJoinedUserIdGivenNameFamilyNameTable);
+
+        // join userId, givenName, familyName on follows
+
+        expectedDict.put("wsdbm:follows", database.tables().get("wsdbm:follows").getObjectDictionary());
+
+        HashMap<String, PropertyValues<Item>> expectedValues3 = new HashMap<>();
+        expectedValues3.put("wsdbm:userId", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1806723, DataType.INTEGER),
+                        new Item(0, 1806723, DataType.INTEGER),
+                        new Item(2, 1936247, DataType.INTEGER))));
+        expectedValues3.put("foaf:givenName", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1, DataType.STRING),
+                        new Item(0, 1, DataType.STRING),
+                        new Item(2, 2, DataType.STRING))));
+        expectedValues3.put("foaf:familyName", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1, DataType.STRING),
+                        new Item(0, 1, DataType.STRING),
+                        new Item(2, 2, DataType.STRING))));
+        expectedValues3.put("wsdbm:follows", new PropertyValues<>(
+                List.of(
+                        new Item(0, 24, DataType.OBJECT),
+                        new Item(0, 27, DataType.OBJECT),
+                        new Item(2, 24, DataType.OBJECT))));
+
+        VerticallyPartitionedTable expectedJoin3Table = new VerticallyPartitionedTable(expectedDict, expectedValues3);
+
+        VerticallyPartitionedTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.parallelHashJoin(
+                actualJoinedUserIdGivenNameFamilyNameTable,
+                database.tables().get("wsdbm:follows").toVerticallyPartitioned(),
+                "wsdbm:userId",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.SUBJECT);
+
+        compareTables(expectedJoin3Table, actualJoinedUserIdGivenNameFamilyNameFollowsTable);
+
+        // join userId, givenName, familyName, follows on likes
+
+        expectedDict.put("wsdbm:likes", database.tables().get("wsdbm:likes").getObjectDictionary());
+
+        HashMap<String, PropertyValues<Item>> expectedValues4 = new HashMap<>();
+        expectedValues4.put("wsdbm:userId", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1806723, DataType.INTEGER),
+                        new Item(2, 1936247, DataType.INTEGER))));
+        expectedValues4.put("foaf:givenName", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1, DataType.STRING),
+                        new Item(2, 2, DataType.STRING))));
+        expectedValues4.put("foaf:familyName", new PropertyValues<>(
+                List.of(
+                        new Item(0, 1, DataType.STRING),
+                        new Item(2, 2, DataType.STRING))));
+        expectedValues4.put("wsdbm:follows", new PropertyValues<>(
+                List.of(
+                        new Item(0, 24, DataType.OBJECT),
+                        new Item(2, 24, DataType.OBJECT))));
+
+        expectedValues4.put("wsdbm:likes", new PropertyValues<>(
+                List.of(
+                        new Item(24, 25, DataType.OBJECT),
+                        new Item(24, 25, DataType.OBJECT))));
+
+        VerticallyPartitionedTable expectedJoin4Table = new VerticallyPartitionedTable(expectedDict, expectedValues4);
+
+        VerticallyPartitionedTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.parallelHashJoin(
+                actualJoinedUserIdGivenNameFamilyNameFollowsTable,
+                database.tables().get("wsdbm:likes").toVerticallyPartitioned(),
+                "wsdbm:follows",
+                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT);
+
+        compareTables(expectedJoin4Table, actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable);
+
+    }
+
     private void compareTables(ComplexTable expected, ComplexTable actual) {
         // check sizes
         Assert.assertEquals(String.format("Joined Table size should be %d, got %d", expected.getValues().size(), actual.getValues().size()),
@@ -760,6 +900,42 @@ public class JoinServiceTest {
 
         // check tuples
         assertJoinedValuesEqual(expected.getValues(), actual.getValues(), expected, actual);
+    }
+
+    private void compareTables(VerticallyPartitionedTable expected, VerticallyPartitionedTable actual) {
+        // check sizes
+        Assert.assertEquals(String.format("Joined Table size should be %d, got %d", expected.size(), actual.size()),
+                expected.size(), actual.size());
+
+        // check dictionaries
+        Assert.assertEquals("Dictionaries should contain the same references", expected.dictionaries(), actual.dictionaries());
+
+        // check joined items
+        assertJoinedValuesEqual(expected.itemsToHorizontalPartition(), actual.itemsToHorizontalPartition());
+
+    }
+
+    private void assertJoinedValuesEqual(List<JoinedItemsOptimized> j1, List<JoinedItemsOptimized> j2) {
+        Assert.assertEquals("Joined Table should have the same length (" + j1.size() + " vs. " + j2.size() + ")", j1.size(), j2.size());
+
+        // For each JoinedItems in j1
+        for (JoinedItemsOptimized joinedItems1 : j1) {
+            // Find it in j2
+            boolean found = false;
+            for (JoinedItemsOptimized joinedItems2 : j2) {
+                if (joinedItems1.equals(joinedItems2)) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                System.out.println("Expected: " + j1);
+                System.out.println("Actual: " + j2);
+                Assert.fail("Joined Table should have correctly joined values with correct structure");
+            }
+        }
+
     }
 
     private void assertDictionariesEqual(Dictionary d1, Dictionary d2) {
@@ -864,6 +1040,7 @@ public class JoinServiceTest {
 
         SimpleTable likesTable = new SimpleTable("wsdbm:likes");
         likesTable.insert(new Item(24, 25, DataType.OBJECT));
+        likesTable.insert(new Item(29, 30, DataType.OBJECT));
         tables.put("wsdbm:likes", likesTable);
 
         return tables;

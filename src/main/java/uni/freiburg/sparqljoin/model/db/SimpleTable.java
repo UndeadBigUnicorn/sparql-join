@@ -76,4 +76,18 @@ public class SimpleTable {
         }).collect(Collectors.toList());
         return new ComplexTable(propertyDictionary, getObjectDictionary(), new PropertyValues<>(values));
     }
+
+    /**
+     * Transform simple table to vertically partitioned one
+     *
+     * @return VerticallyPartitionedTable
+     */
+    public VerticallyPartitionedTable toVerticallyPartitioned() {
+        HashMap<String, Dictionary> dictionaries = new HashMap<>();
+        dictionaries.put(this.getProperty(), this.getObjectDictionary());
+
+        HashMap<String, PropertyValues<Item>> values = new HashMap<>();
+        values.put(this.getProperty(), this.items);
+        return new VerticallyPartitionedTable(dictionaries, values);
+    }
 }
