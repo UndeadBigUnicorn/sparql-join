@@ -24,7 +24,7 @@ public class ParallelHashJoinOptimized extends HashJoinOptimized {
 
     public ParallelHashJoinOptimized() {
         // each core has 2 threads
-        this.numThreads = Runtime.getRuntime().availableProcessors() * 2;
+        this.numThreads = 4;// Runtime.getRuntime().availableProcessors()*2;
         // thread pool for partitions
         this.threadPool = Executors.newFixedThreadPool(numThreads);
         // thread pool for misc tasks

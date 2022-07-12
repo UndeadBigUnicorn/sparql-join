@@ -33,7 +33,9 @@ public class DataLoaderService {
         try (Stream<String> lines = Files.lines(Path.of(path))) {
             for (String line : (Iterable<String>) lines::iterator) {
                 Triplet triplet = parseTriplet(line);
-                processTriplet(triplet);
+                if (triplet != null) {
+                    processTriplet(triplet);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -50,8 +52,10 @@ public class DataLoaderService {
         List<String> tokens = new ArrayList<>(List.of(line.split("\t")));
         // object   property    subject .
         assert tokens.size() == 3;
+        boolean largeDataset = false;
         // 10M dataset looks different. It contains links instead of domain:element mapping
         if (tokens.get(0).startsWith("<http")) {
+            largeDataset = true;
             // transform each token from http...domain/element format to domain:element
             for (int i = 0; i < tokens.size(); i++) {
                 String token = tokens.get(i);
@@ -66,15 +70,20 @@ public class DataLoaderService {
                 if (token.contains("wsdbm")) {
                     domain = "wsdbm:" + domain;
                 }
-                if (token.contains("foaf")) {
+                else if (token.contains("foaf")) {
                     domain = "foaf:" + domain;
                 }
-                if (token.contains("rev")) {
+                else if (token.contains("rev")) {
                     domain = "rev:" + domain;
                 }
                 tokens.set(i, domain);
             }
 
+        }
+
+        // hack for memory optimization in 10M dataset, store only needed table for the join
+        if (largeDataset && !List.of("wsdbm:follows", "wsdbm:friendOf", "wsdbm:likes", "rev:hasReview").contains(tokens.get(1))) {
+            return null;
         }
         return Triplet.builder()
                 .subject(tokens.get(0))
