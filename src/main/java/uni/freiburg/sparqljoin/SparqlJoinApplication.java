@@ -59,14 +59,14 @@ public class SparqlJoinApplication implements CommandLineRunner {
     public boolean simulation(Database database) {
         LOG.info("Simulation begin...");
 
-        // parallel hash join optimized
-        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
-        Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
-        System.gc(); // Ask for garbage collection to free memory
-
         // hash join optimized
         LOG.info("****** HASH JOIN OPTIMIZED ******");
         Performance.measure(() -> hashJoinOptimized(database), "Hash Join Optimized Simulation");
+        System.gc(); // Ask for garbage collection to free memory
+
+        // parallel hash join optimized
+        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
+        Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
         System.gc(); // Ask for garbage collection to free memory
 
         // hash join
