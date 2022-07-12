@@ -19,65 +19,70 @@ public class DataLoaderServiceTest {
 
     @Test
     public void testLoadDataset() {
-        Database expected = new Database(initTables());
-        Database actual = dataLoaderService.load(DATASET_PATH);
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database expectedDatabase = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
-        Assert.assertEquals("Some table is missing", expected.tables().size(), actual.tables().size());
+        Database actualDatabase = dataLoaderService.load(DATASET_PATH);
 
-        actual.tables().forEach((key, actualTable) -> Assert.assertEquals(String.format("For key '%s' tables are not equal", key),
-                expected.tables().get(key).list(), actualTable.list()));
+        Assert.assertEquals("Some table is missing", expectedDatabase.tables().size(), actualDatabase.tables().size());
+
+        actualDatabase.tables().forEach((key, actualTable) -> Assert.assertEquals(String.format("For key '%s' tables are not equal", key),
+                expectedDatabase.tables().get(key).list(), actualTable.list()));
     }
 
-    private HashMap<String, Dictionary> initDictionaries() {
-        HashMap<String, Dictionary> dictionaries = new HashMap<>();
-        Dictionary emailDict = new Dictionary();
-        emailDict.put("example@gmail.com");
-        dictionaries.put("sorg:email", emailDict);
-
-        Dictionary givenNameDict = new Dictionary();
-        givenNameDict.put("BERTA");
-        dictionaries.put("foaf:givenName", givenNameDict);
-
-        Dictionary familyNameDict = new Dictionary();
-        familyNameDict.put("LEAH");
-        dictionaries.put("foaf:familyName", familyNameDict);
-        return dictionaries;
+    private Dictionary initExpectedObjectDictionary() {
+        Dictionary dictionary = new Dictionary();
+        dictionary.put("example@gmail.com");
+        dictionary.put("BERTA");
+        dictionary.put("LEAH");
+        return dictionary;
     }
 
-    private HashMap<String, SimpleTable> initTables() {
-        HashMap<String, Dictionary> dictionaries = initDictionaries();
+    private Dictionary initExpectedPropertyDictionary() {
+        Dictionary propertyDictionary = new Dictionary();
+        propertyDictionary.put("gn:parentCountry");
+        propertyDictionary.put("wsdbm:follows");
+        propertyDictionary.put("wsdbm:userId");
+        propertyDictionary.put("sorg:email");
+        propertyDictionary.put("foaf:givenName");
+        propertyDictionary.put("foaf:familyName");
+        return propertyDictionary;
+    }
+
+    private PreparedDataset initExpectedDataset() {
+        Dictionary propertyDictionary = initExpectedPropertyDictionary();
+        Dictionary objectDictionary = initExpectedObjectDictionary();
         HashMap<String, SimpleTable> tables = new HashMap<>();
 
-        SimpleTable parentCountryTable = new SimpleTable("gn:parentCountry");
+        SimpleTable parentCountryTable = new SimpleTable("gn:parentCountry", propertyDictionary, objectDictionary);
         parentCountryTable.insert(new Item(0, 20, DataType.OBJECT));
         parentCountryTable.insert(new Item(1, 0, DataType.OBJECT));
         tables.put("gn:parentCountry", parentCountryTable);
 
-        SimpleTable followsTable = new SimpleTable("wsdbm:follows");
-        followsTable.insert(new Item(0, 24, DataType.OBJECT));
-        followsTable.insert(new Item(0, 27, DataType.OBJECT));
+        SimpleTable followsTable = new SimpleTable("wsdbm:follows", propertyDictionary, objectDictionary);
+        followsTable.insert(new Item(10, 24, DataType.OBJECT));
+        followsTable.insert(new Item(10, 27, DataType.OBJECT));
         tables.put("wsdbm:follows", followsTable);
 
-        SimpleTable userIdTable = new SimpleTable("wsdbm:userId");
-        userIdTable.insert(new Item(0, 1806723, DataType.INTEGER));
-        userIdTable.insert(new Item(2, 1936247, DataType.INTEGER));
+        SimpleTable userIdTable = new SimpleTable("wsdbm:userId", propertyDictionary, objectDictionary);
+        userIdTable.insert(new Item(10, 1806723, DataType.INTEGER));
+        userIdTable.insert(new Item(12, 1936247, DataType.INTEGER));
         tables.put("wsdbm:userId", userIdTable);
 
-        SimpleTable emailTable = new SimpleTable("sorg:email", dictionaries.get("sorg:email"));
+        SimpleTable emailTable = new SimpleTable("sorg:email", propertyDictionary, objectDictionary);
         emailTable.insert(new Item(0, 1, DataType.STRING));
         tables.put("sorg:email", emailTable);
 
-        SimpleTable givenNameTable =
-                new SimpleTable("foaf:givenName", dictionaries.get("foaf:givenName"));
-        givenNameTable.insert(new Item(0, 1, DataType.STRING));
-        givenNameTable.insert(new Item(2, 1, DataType.STRING));
+        SimpleTable givenNameTable = new SimpleTable("foaf:givenName", propertyDictionary, objectDictionary);
+        givenNameTable.insert(new Item(0, 2, DataType.STRING));
+        givenNameTable.insert(new Item(2, 2, DataType.STRING));
         tables.put("foaf:givenName", givenNameTable);
 
-        SimpleTable familyNameTable =
-                new SimpleTable("foaf:familyName", dictionaries.get("foaf:familyName"));
-        familyNameTable.insert(new Item(2, 1, DataType.STRING));
+        SimpleTable familyNameTable = new SimpleTable("foaf:familyName", propertyDictionary, objectDictionary);
+        familyNameTable.insert(new Item(12, 3, DataType.STRING));
         tables.put("foaf:familyName", familyNameTable);
-        return tables;
+
+        return new PreparedDataset(tables, propertyDictionary, objectDictionary);
     }
 
 }

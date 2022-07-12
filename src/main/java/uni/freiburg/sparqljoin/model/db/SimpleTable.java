@@ -15,22 +15,20 @@ public class SimpleTable {
 
     private final PropertyValues<Item> items;
 
+    private final Dictionary propertyDictionary;
+
     private final Dictionary objectDictionary;
 
-    public SimpleTable(String property) {
+    public SimpleTable(String property, Dictionary propertyDictionary, Dictionary objectDictionary) {
         this.property = property;
-        this.items = new PropertyValues<>();
-        this.objectDictionary = new Dictionary();
-    }
-
-    public SimpleTable(String property, Dictionary objectDictionary) {
-        this.property = property;
+        this.propertyDictionary = propertyDictionary;
         this.objectDictionary = objectDictionary;
         this.items = new PropertyValues<>();
     }
 
-    public SimpleTable(String property, Dictionary objectDictionary, PropertyValues<Item> items) {
+    public SimpleTable(String property, Dictionary propertyDictionary, Dictionary objectDictionary, PropertyValues<Item> items) {
         this.property = property;
+        this.propertyDictionary = propertyDictionary;
         this.objectDictionary = objectDictionary;
         this.items = items;
     }
@@ -57,6 +55,10 @@ public class SimpleTable {
         return this.items.getValues();
     }
 
+    public Dictionary getPropertyDictionary() {
+        return propertyDictionary;
+    }
+
     public Dictionary getObjectDictionary() {
         return objectDictionary;
     }
@@ -67,13 +69,14 @@ public class SimpleTable {
      * @return ComplexTable
      */
     public ComplexTable toComplex() {
-        Dictionary propertyDictionary = new Dictionary();
-        Integer propertyInteger = propertyDictionary.put(getProperty());
+        Integer propertyInteger = propertyDictionary.getInvertedValues().get(getProperty());
+
         List<JoinedItems> values = list().stream().map((item) -> {
             HashMap<Integer, Item> itemMap = new HashMap<>();
             itemMap.put(propertyInteger, item);
             return new JoinedItems(item.subject(), itemMap);
         }).collect(Collectors.toList());
-        return new ComplexTable(propertyDictionary, getObjectDictionary(), new PropertyValues<>(values));
+
+        return new ComplexTable(getPropertyDictionary(), getObjectDictionary(), new PropertyValues<>(values));
     }
 }

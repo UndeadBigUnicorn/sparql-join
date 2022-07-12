@@ -137,7 +137,7 @@ public class HashJoin implements AbstractJoin {
                     int probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
                         // No hash collision
-                        mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceJoinedItems, probeJoinedItems, probeTableDictionary);
+                        mergeTuplesAndDictionaries(joinedItems, referenceJoinedItems, probeJoinedItems);
                     }
                 }
             }

@@ -9,18 +9,11 @@ import java.util.List;
  * See SimpleTable.toComplex() for how this works.
  */
 public class ComplexTable {
+    private final PropertyValues<JoinedItems> items;
 
     private final Dictionary propertyDictionary;
 
-    private final PropertyValues<JoinedItems> items;
-
     private final Dictionary objectDictionary;
-
-    public ComplexTable(Dictionary propertyDictionary) {
-        this.propertyDictionary = propertyDictionary;
-        this.items = new PropertyValues<>();
-        this.objectDictionary = new Dictionary();
-    }
 
     public ComplexTable(Dictionary propertyDictionary, Dictionary objectDictionary) {
         this.propertyDictionary = propertyDictionary;

@@ -89,7 +89,9 @@ public class ParallelHashJoin extends HashJoin {
         }
 
         // Combine probe thread results
-        ComplexTable joinResult = new ComplexTable(new Dictionary());
+        assert R.getPropertyDictionary() == S.getPropertyDictionary();
+        assert R.getObjectDictionary() == S.getObjectDictionary();
+        ComplexTable joinResult = new ComplexTable(R.getPropertyDictionary(), R.getObjectDictionary());
         for (ComplexTable threadOutput : probeOutputs) {
             joinResult.insertComplexTable(threadOutput);
         }

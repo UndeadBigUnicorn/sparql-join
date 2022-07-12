@@ -22,6 +22,10 @@ public class DataLoaderService {
 
     private HashMap<String, SimpleTable> tables;
 
+    private Dictionary propertyDictionary;
+
+    private Dictionary objectDictionary;
+
     /**
      * Parse the dataset and load data into database structure
      *
@@ -29,7 +33,11 @@ public class DataLoaderService {
      */
     public Database load(String path) {
         LOG.info("Loading dataset...");
-        tables = new HashMap<>();
+
+        this.tables = new HashMap<>();
+        this.propertyDictionary = new Dictionary();
+        this.objectDictionary = new Dictionary();
+
         try (Stream<String> lines = Files.lines(Path.of(path))) {
             for (String line : (Iterable<String>) lines::iterator) {
                 Triplet triplet = parseTriplet(line);
@@ -38,7 +46,7 @@ public class DataLoaderService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new Database(tables);
+        return new Database(this.tables, this.propertyDictionary, this.objectDictionary);
     }
 
     /**
@@ -76,6 +84,12 @@ public class DataLoaderService {
             }
 
         }
+
+        // Ensure the dictionaries that are passed as a reference to all SimpleTable instances are populated
+        // TODO do it here or in the tocomplextable?
+        this.propertyDictionary.put(tokens.get(1));
+        this.objectDictionary.put(tokens.get(2));
+
         return Triplet.builder()
                 .subject(tokens.get(0))
                 .property(tokens.get(1))
@@ -92,16 +106,21 @@ public class DataLoaderService {
     private void processTriplet(final Triplet triplet) {
         // create new table
         if (!tables.containsKey(triplet.property())) {
-            tables.put(triplet.property(), new SimpleTable(triplet.property()));
+            tables.put(triplet.property(), new SimpleTable(triplet.property(), this.propertyDictionary, this.objectDictionary));
         }
         SimpleTable table = tables.get(triplet.property());
-        Dictionary dict = table.getObjectDictionary();
 
-        int subjectKey = extractKey(triplet.subject(), dict);
-        int objectKey = extractKey(triplet.object(), dict);
+        try {
+            int subject = Integer.parseInt(triplet.subject(), 10); // Throws exception if subject is not integer
 
-        table.insert(new Item(subjectKey, objectKey, typeOf(triplet.object())));
+            int objectKey = extractKey(triplet.object(), table.getObjectDictionary());
 
+            table.insert(new Item(subject, objectKey, typeOf(triplet.object())));
+        } catch (Exception e) {
+            System.out.println(triplet.subject());
+            System.out.println(triplet.object());
+            System.out.println("FAIL ===========");
+        }
     }
 
     /**
@@ -119,8 +138,8 @@ public class DataLoaderService {
             case STRING -> dict.put(value);
             case INTEGER -> Integer.parseInt(value);
             case OBJECT ->
-                    // non-numeric value replacement shouldn't create collisions
-                    // because the property holds values of one specific type
+                // non-numeric value replacement shouldn't create collisions
+                // because the property holds values of one specific type
                     Integer.parseInt(value.replaceAll("\\D", ""));
         };
     }

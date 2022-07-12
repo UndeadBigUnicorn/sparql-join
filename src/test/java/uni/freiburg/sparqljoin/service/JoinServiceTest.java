@@ -23,18 +23,12 @@ public class JoinServiceTest {
      */
     @Test
     public void testSimpleHashJoin() {
-        Database database = new Database(initSimpleTables());
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database database = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         // join userId on givenName
 
-        Dictionary expectedJoin1PropertyDict = new Dictionary();
-        expectedJoin1PropertyDict.put("wsdbm:userId");
-        expectedJoin1PropertyDict.put("foaf:givenName");
-        Dictionary expectedJoin1ObjectDict = new Dictionary();
-        expectedJoin1ObjectDict.put("LUKE");
-        expectedJoin1ObjectDict.put("HAN");
-        expectedJoin1ObjectDict.put("LEA");
-        ComplexTable expectedJoin1Table = new ComplexTable(expectedJoin1PropertyDict, expectedJoin1ObjectDict);
+        ComplexTable expectedJoin1Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -61,19 +55,7 @@ public class JoinServiceTest {
 
         // join userId, givenName on familyName
 
-        Dictionary expectedJoin2PropertyDict = new Dictionary();
-        expectedJoin2PropertyDict.put("wsdbm:userId");
-        expectedJoin2PropertyDict.put("foaf:givenName");
-        expectedJoin2PropertyDict.put("foaf:familyName");
-        Dictionary expectedJoin2ObjectDict = new Dictionary();
-        expectedJoin2ObjectDict.put("LUKE");
-        expectedJoin2ObjectDict.put("HAN");
-        expectedJoin2ObjectDict.put("LEA");
-        expectedJoin2ObjectDict.put("SKYWALKER");
-        expectedJoin2ObjectDict.put("SOLO");
-        expectedJoin2ObjectDict.put("ORGANA");
-        ComplexTable expectedJoin2Table = new ComplexTable(expectedJoin2PropertyDict,
-                expectedJoin2ObjectDict);
+        ComplexTable expectedJoin2Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -103,14 +85,7 @@ public class JoinServiceTest {
 
         // join userId, givenName, familyName on follows
 
-        Dictionary expectedJoin3PropertyDict = new Dictionary();
-        expectedJoin3PropertyDict.put("wsdbm:userId");
-        expectedJoin3PropertyDict.put("foaf:givenName");
-        expectedJoin3PropertyDict.put("foaf:familyName");
-        expectedJoin3PropertyDict.put("wsdbm:follows");
-        ComplexTable expectedJoin3Table = new ComplexTable(
-                expectedJoin3PropertyDict,
-                expectedJoin2Table.getObjectDictionary());
+        ComplexTable expectedJoin3Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -131,12 +106,6 @@ public class JoinServiceTest {
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
         expectedJoin3Table.insert(new JoinedItems(2, joinedValue3));
 
-        // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
-        expectedJoin3Table.getObjectDictionary().getValues().remove(3);
-        expectedJoin3Table.getObjectDictionary().getInvertedValues().remove("LEA");
-        expectedJoin3Table.getObjectDictionary().getValues().remove(6);
-        expectedJoin3Table.getObjectDictionary().getInvertedValues().remove("ORGANA");
-
         ComplexTable actualJoin3Table = joinService.hashJoin(
                 actualJoin2Table,
                 database.tables().get("wsdbm:follows").toComplex(),
@@ -149,15 +118,7 @@ public class JoinServiceTest {
 
         // join userId, givenName, familyName, follows on likes
 
-        Dictionary expectedJoin4PropertyDict = new Dictionary();
-        expectedJoin4PropertyDict.put("wsdbm:userId");
-        expectedJoin4PropertyDict.put("foaf:givenName");
-        expectedJoin4PropertyDict.put("foaf:familyName");
-        expectedJoin4PropertyDict.put("wsdbm:follows");
-        expectedJoin4PropertyDict.put("wsdbm:likes");
-        ComplexTable expectedJoin4Table = new ComplexTable(
-                expectedJoin4PropertyDict,
-                expectedJoin3Table.getObjectDictionary());
+        ComplexTable expectedJoin4Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -190,22 +151,12 @@ public class JoinServiceTest {
      */
     @Test
     public void testComplexHashJoin() {
-        Database database = new Database(initSimpleTables());
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database database = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         // join userId, givenName, familyName on userId, givenName, familyName, follows
 
-        Dictionary expectedJoin1PropertyDict = new Dictionary();
-        expectedJoin1PropertyDict.put("wsdbm:userId");
-        expectedJoin1PropertyDict.put("foaf:givenName");
-        expectedJoin1PropertyDict.put("foaf:familyName");
-        expectedJoin1PropertyDict.put("wsdbm:follows");
-        Dictionary expectedJoin1ObjectDict = new Dictionary();
-        expectedJoin1ObjectDict.put("LUKE");
-        expectedJoin1ObjectDict.put("HAN");
-        expectedJoin1ObjectDict.put("SKYWALKER");
-        expectedJoin1ObjectDict.put("SOLO");
-        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(expectedJoin1PropertyDict,
-                expectedJoin1ObjectDict);
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -266,18 +217,12 @@ public class JoinServiceTest {
      */
     @Test
     public void testSimpleParallelHashJoin() {
-        Database database = new Database(initSimpleTables());
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database database = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         // join userId on givenName
 
-        Dictionary expectedJoin1PropertyDict = new Dictionary();
-        expectedJoin1PropertyDict.put("wsdbm:userId");
-        expectedJoin1PropertyDict.put("foaf:givenName");
-        Dictionary expectedJoin1ObjectDict = new Dictionary();
-        expectedJoin1ObjectDict.put("LUKE");
-        expectedJoin1ObjectDict.put("HAN");
-        expectedJoin1ObjectDict.put("LEA");
-        ComplexTable expectedJoin1Table = new ComplexTable(expectedJoin1PropertyDict, expectedJoin1ObjectDict);
+        ComplexTable expectedJoin1Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -304,19 +249,7 @@ public class JoinServiceTest {
 
         // join userId, givenName on familyName
 
-        Dictionary expectedJoin2PropertyDict = new Dictionary();
-        expectedJoin2PropertyDict.put("wsdbm:userId");
-        expectedJoin2PropertyDict.put("foaf:givenName");
-        expectedJoin2PropertyDict.put("foaf:familyName");
-        Dictionary expectedJoin2ObjectDict = new Dictionary();
-        expectedJoin2ObjectDict.put("LUKE");
-        expectedJoin2ObjectDict.put("HAN");
-        expectedJoin2ObjectDict.put("LEA");
-        expectedJoin2ObjectDict.put("SKYWALKER");
-        expectedJoin2ObjectDict.put("SOLO");
-        expectedJoin2ObjectDict.put("ORGANA");
-        ComplexTable expectedJoin2Table = new ComplexTable(expectedJoin2PropertyDict,
-                expectedJoin2ObjectDict);
+        ComplexTable expectedJoin2Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -346,14 +279,7 @@ public class JoinServiceTest {
 
         // join userId, givenName, familyName on follows
 
-        Dictionary expectedJoin3PropertyDict = new Dictionary();
-        expectedJoin3PropertyDict.put("wsdbm:userId");
-        expectedJoin3PropertyDict.put("foaf:givenName");
-        expectedJoin3PropertyDict.put("foaf:familyName");
-        expectedJoin3PropertyDict.put("wsdbm:follows");
-        ComplexTable expectedJoin3Table = new ComplexTable(
-                expectedJoin3PropertyDict,
-                expectedJoin2Table.getObjectDictionary());
+        ComplexTable expectedJoin3Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -392,15 +318,7 @@ public class JoinServiceTest {
 
         // join userId, givenName, familyName, follows on likes
 
-        Dictionary expectedJoin4PropertyDict = new Dictionary();
-        expectedJoin4PropertyDict.put("wsdbm:userId");
-        expectedJoin4PropertyDict.put("foaf:givenName");
-        expectedJoin4PropertyDict.put("foaf:familyName");
-        expectedJoin4PropertyDict.put("wsdbm:follows");
-        expectedJoin4PropertyDict.put("wsdbm:likes");
-        ComplexTable expectedJoin4Table = new ComplexTable(
-                expectedJoin4PropertyDict,
-                expectedJoin3Table.getObjectDictionary());
+        ComplexTable expectedJoin4Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -433,22 +351,12 @@ public class JoinServiceTest {
      */
     @Test
     public void testComplexParallelHashJoin() {
-        Database database = new Database(initSimpleTables());
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database database = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         // join userId, givenName, familyName on userId, givenName, familyName, follows
 
-        Dictionary expectedJoin1PropertyDict = new Dictionary();
-        expectedJoin1PropertyDict.put("wsdbm:userId");
-        expectedJoin1PropertyDict.put("foaf:givenName");
-        expectedJoin1PropertyDict.put("foaf:familyName");
-        expectedJoin1PropertyDict.put("wsdbm:follows");
-        Dictionary expectedJoin1ObjectDict = new Dictionary();
-        expectedJoin1ObjectDict.put("LUKE");
-        expectedJoin1ObjectDict.put("HAN");
-        expectedJoin1ObjectDict.put("SKYWALKER");
-        expectedJoin1ObjectDict.put("SOLO");
-        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(expectedJoin1PropertyDict,
-                expectedJoin1ObjectDict);
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -509,18 +417,12 @@ public class JoinServiceTest {
      */
     @Test
     public void testSimpleSortMergeJoin() {
-        Database database = new Database(initSimpleTables());
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database database = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         // join userId on givenName
 
-        Dictionary expectedJoin1PropertyDict = new Dictionary();
-        expectedJoin1PropertyDict.put("wsdbm:userId");
-        expectedJoin1PropertyDict.put("foaf:givenName");
-        Dictionary expectedJoin1ObjectDict = new Dictionary();
-        expectedJoin1ObjectDict.put("LUKE");
-        expectedJoin1ObjectDict.put("HAN");
-        expectedJoin1ObjectDict.put("LEA");
-        ComplexTable expectedJoin1Table = new ComplexTable(expectedJoin1PropertyDict, expectedJoin1ObjectDict);
+        ComplexTable expectedJoin1Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -547,19 +449,7 @@ public class JoinServiceTest {
 
         // join userId, givenName on familyName
 
-        Dictionary expectedJoin2PropertyDict = new Dictionary();
-        expectedJoin2PropertyDict.put("wsdbm:userId");
-        expectedJoin2PropertyDict.put("foaf:givenName");
-        expectedJoin2PropertyDict.put("foaf:familyName");
-        Dictionary expectedJoin2ObjectDict = new Dictionary();
-        expectedJoin2ObjectDict.put("LUKE");
-        expectedJoin2ObjectDict.put("HAN");
-        expectedJoin2ObjectDict.put("LEA");
-        expectedJoin2ObjectDict.put("SKYWALKER");
-        expectedJoin2ObjectDict.put("SOLO");
-        expectedJoin2ObjectDict.put("ORGANA");
-        ComplexTable expectedJoin2Table = new ComplexTable(expectedJoin2PropertyDict,
-                expectedJoin2ObjectDict);
+        ComplexTable expectedJoin2Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -589,14 +479,7 @@ public class JoinServiceTest {
 
         // join userId, givenName, familyName on follows
 
-        Dictionary expectedJoin3PropertyDict = new Dictionary();
-        expectedJoin3PropertyDict.put("wsdbm:userId");
-        expectedJoin3PropertyDict.put("foaf:givenName");
-        expectedJoin3PropertyDict.put("foaf:familyName");
-        expectedJoin3PropertyDict.put("wsdbm:follows");
-        ComplexTable expectedJoin3Table = new ComplexTable(
-                expectedJoin3PropertyDict,
-                expectedJoin2Table.getObjectDictionary());
+        ComplexTable expectedJoin3Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -618,10 +501,6 @@ public class JoinServiceTest {
         expectedJoin3Table.insert(new JoinedItems(2, joinedValue3));
 
         // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
-        expectedJoin3Table.getObjectDictionary().getValues().remove(3);
-        expectedJoin3Table.getObjectDictionary().getInvertedValues().remove("LEA");
-        expectedJoin3Table.getObjectDictionary().getValues().remove(6);
-        expectedJoin3Table.getObjectDictionary().getInvertedValues().remove("ORGANA");
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsTable = joinService.sortMergeJoin(
                 actualJoinedUserIdGivenNameFamilyNameTable,
@@ -635,15 +514,7 @@ public class JoinServiceTest {
 
         // join userId, givenName, familyName, follows on likes
 
-        Dictionary expectedJoin4PropertyDict = new Dictionary();
-        expectedJoin4PropertyDict.put("wsdbm:userId");
-        expectedJoin4PropertyDict.put("foaf:givenName");
-        expectedJoin4PropertyDict.put("foaf:familyName");
-        expectedJoin4PropertyDict.put("wsdbm:follows");
-        expectedJoin4PropertyDict.put("wsdbm:likes");
-        ComplexTable expectedJoin4Table = new ComplexTable(
-                expectedJoin4PropertyDict,
-                expectedJoin3Table.getObjectDictionary());
+        ComplexTable expectedJoin4Table = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -676,22 +547,12 @@ public class JoinServiceTest {
      */
     @Test
     public void testComplexSortMergeJoin() {
-        Database database = new Database(initSimpleTables());
+        PreparedDataset expectedDataset = initExpectedDataset();
+        Database database = new Database(expectedDataset.simpleTables(), expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         // join userId, givenName, familyName on userId, givenName, familyName, follows
 
-        Dictionary expectedJoin1PropertyDict = new Dictionary();
-        expectedJoin1PropertyDict.put("wsdbm:userId");
-        expectedJoin1PropertyDict.put("foaf:givenName");
-        expectedJoin1PropertyDict.put("foaf:familyName");
-        expectedJoin1PropertyDict.put("wsdbm:follows");
-        Dictionary expectedJoin1ObjectDict = new Dictionary();
-        expectedJoin1ObjectDict.put("LUKE");
-        expectedJoin1ObjectDict.put("HAN");
-        expectedJoin1ObjectDict.put("SKYWALKER");
-        expectedJoin1ObjectDict.put("SOLO");
-        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(expectedJoin1PropertyDict,
-                expectedJoin1ObjectDict);
+        ComplexTable expectedJoinedUserIdGivenNameFamilyNameFollowsTable = new ComplexTable(expectedDataset.propertyDictionary(), expectedDataset.objectDictionary());
 
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
@@ -800,9 +661,7 @@ public class JoinServiceTest {
                     int objectInt = item.object();
                     if (item.type() == DataType.STRING) {
                         String value2 = d2.get(item.object());
-                        if (d1.getInvertedValues().containsKey(value2)) {
-                            objectInt = d1.getInvertedValues().get(value2);
-                        }
+                        objectInt = d1.getInvertedValues().get(value2);
                     }
                     tempJoinedItem2.values().put(commonPropertyInt,
                             new Item(item.subject(),
@@ -822,50 +681,67 @@ public class JoinServiceTest {
                 System.out.println("Actual: " + j2);
                 System.out.println("using properties: " + p2);
                 System.out.println("using dictionary: " + d2);
+                System.out.println("Did not find a match for: " + j1);
                 Assert.fail("Joined Table should have correctly joined values with correct structure");
             }
         }
     }
 
-    private HashMap<String, SimpleTable> initSimpleTables() {
+    private Dictionary initExpectedObjectDictionary() {
+        Dictionary dictionary = new Dictionary();
+        dictionary.put("LUKE");
+        dictionary.put("HAN");
+        dictionary.put("LEA");
+        dictionary.put("SKYWALKER");
+        dictionary.put("SOLO");
+        dictionary.put("ORGANA");
+        return dictionary;
+    }
+
+    private Dictionary initExpectedPropertyDictionary() {
+        Dictionary propertyDictionary = new Dictionary();
+        propertyDictionary.put("foaf:givenName");
+        propertyDictionary.put("foaf:familyName");
+        propertyDictionary.put("wsdbm:userId");
+        propertyDictionary.put("gn:parentCountry");
+        propertyDictionary.put("wsdbm:follows");
+        propertyDictionary.put("wsdbm:likes");
+        return propertyDictionary;
+    }
+
+    private PreparedDataset initExpectedDataset() {
+        Dictionary propertyDictionary = initExpectedPropertyDictionary();
+        Dictionary objectDictionary = initExpectedObjectDictionary();
         HashMap<String, SimpleTable> tables = new HashMap<>();
 
-        Dictionary givenNameDict = new Dictionary();
-        givenNameDict.put("LUKE");
-        givenNameDict.put("HAN");
-        givenNameDict.put("LEA");
-        SimpleTable givenNameTable = new SimpleTable("foaf:givenName", givenNameDict);
+        SimpleTable givenNameTable = new SimpleTable("foaf:givenName", propertyDictionary, objectDictionary);
         givenNameTable.insert(new Item(0, 1, DataType.STRING));
         givenNameTable.insert(new Item(2, 2, DataType.STRING));
         givenNameTable.insert(new Item(24, 3, DataType.STRING));
         tables.put("foaf:givenName", givenNameTable);
 
-        Dictionary familyNameDict = new Dictionary();
-        familyNameDict.put("SKYWALKER");
-        familyNameDict.put("SOLO");
-        familyNameDict.put("ORGANA");
-        SimpleTable familyNameTable = new SimpleTable("foaf:familyName", familyNameDict);
-        familyNameTable.insert(new Item(0, 1, DataType.STRING));
-        familyNameTable.insert(new Item(2, 2, DataType.STRING));
-        familyNameTable.insert(new Item(24, 3, DataType.STRING));
+        SimpleTable familyNameTable = new SimpleTable("foaf:familyName", propertyDictionary, objectDictionary);
+        familyNameTable.insert(new Item(0, 4, DataType.STRING));
+        familyNameTable.insert(new Item(2, 5, DataType.STRING));
+        familyNameTable.insert(new Item(24, 6, DataType.STRING));
         tables.put("foaf:familyName", familyNameTable);
 
-        SimpleTable userIdTable = new SimpleTable("wsdbm:userId");
+        SimpleTable userIdTable = new SimpleTable("wsdbm:userId", propertyDictionary, objectDictionary);
         userIdTable.insert(new Item(0, 1806723, DataType.INTEGER));
         userIdTable.insert(new Item(2, 1936247, DataType.INTEGER));
         userIdTable.insert(new Item(24, 15125125, DataType.INTEGER));
         tables.put("wsdbm:userId", userIdTable);
 
-        SimpleTable followsTable = new SimpleTable("wsdbm:follows");
+        SimpleTable followsTable = new SimpleTable("wsdbm:follows", propertyDictionary, objectDictionary);
         followsTable.insert(new Item(0, 24, DataType.OBJECT));
         followsTable.insert(new Item(0, 27, DataType.OBJECT));
         followsTable.insert(new Item(2, 24, DataType.OBJECT));
         tables.put("wsdbm:follows", followsTable);
 
-        SimpleTable likesTable = new SimpleTable("wsdbm:likes");
+        SimpleTable likesTable = new SimpleTable("wsdbm:likes", propertyDictionary, objectDictionary);
         likesTable.insert(new Item(24, 25, DataType.OBJECT));
         tables.put("wsdbm:likes", likesTable);
 
-        return tables;
+        return new PreparedDataset(tables, propertyDictionary, objectDictionary);
     }
 }
