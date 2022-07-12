@@ -101,7 +101,8 @@ public class HashJoin implements AbstractJoin {
         AtomicBoolean printedProgress = new AtomicBoolean(false);
 
         // For each tuple in S...
-        S.getValues().forEach(probeJoinedItems -> {
+        while (S.getValues().size() > 0) {
+            JoinedItems probeJoinedItems = S.getValues().get(0);
             if (numProcessedRecords.incrementAndGet() % 10000 == 0 && !printedProgress.get()) {
                 System.out.println("Iterate over S tuples. " + numProcessedRecords + "/" + numRecords + " records = " + (int)(100f * numProcessedRecords.get() / numRecords) + "%");
                 printedProgress.set(true);
@@ -120,10 +121,14 @@ public class HashJoin implements AbstractJoin {
             if (hashedReferenceTablePartitions.containsKey(hashedSKey)) {
                 for (JoinedItems referenceJoinedItems : hashedReferenceTablePartitions.get(hashedSKey)) {
                     if (!referenceJoinedItems.values().containsKey(joinPropertyR)) {
-                        return; // Discard this S tuple
+                        // Discard this S tuple
+                        S.getValues().remove(0);
+                        continue;
                     }
                     if (!probeJoinedItems.values().containsKey(joinPropertyS)) {
-                        return; // Discard this S tuple
+                        // Discard this S tuple
+                        S.getValues().remove(0);
+                        continue;
                     }
 
                     // A match is found. Output the combined tuple.
@@ -141,7 +146,10 @@ public class HashJoin implements AbstractJoin {
                     }
                 }
             }
-        });
+
+            // S record has been processed. Data that is relevant for the join result has been added to the resulting relation.
+            S.getValues().remove(0);
+        }
 
         return new ComplexTable(outputPropertyDictionary, outputObjectDictionary, new PropertyValues<>(joinedItems));
     }

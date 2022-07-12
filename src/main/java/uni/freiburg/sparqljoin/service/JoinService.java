@@ -119,11 +119,11 @@ public class JoinService {
                               int joinPropertyS, JoinOn joinOnS) {
         LOG.debug("Joining table '{}' on '{}'.{} = '{}'.{} ...",
                 R.getPropertyDictionary(), R.getPropertyDictionary().get(joinPropertyR), joinOnR, R.getPropertyDictionary().get(joinPropertyS), joinOnS);
+        LOG.debug("Table 1 length: {}", R.getValues().size());
+        LOG.debug("Table 2 length: {}", S.getValues().size());
         ComplexTable joinedTable = Performance.measure(() ->
                 joiner.join(R, S, joinPropertyR, joinOnR, joinPropertyS,  joinOnS), String.format("%s", joiner.getClass().getSimpleName())
         );
-        LOG.debug("Table 1 length: {}", R.getValues().size());
-        LOG.debug("Table 2 length: {}", S.getValues().size());
         LOG.info("Joined table length: {}", joinedTable.getValues().size());
         return joinedTable;
     }
