@@ -18,13 +18,13 @@ import java.util.concurrent.Future;
 public class ParallelHashJoinOptimized extends HashJoinOptimized {
     private static final Logger LOG = LoggerFactory.getLogger(ParallelHashJoinOptimized.class);
 
-    private final int numThreads;
+    private int numThreads;
     private final ExecutorService threadPool;
     private final ExecutorService cachedPool;
 
     public ParallelHashJoinOptimized() {
         // each core has 2 threads
-        this.numThreads = 4;// Runtime.getRuntime().availableProcessors()*2;
+        this.numThreads = 8;// Runtime.getRuntime().availableProcessors()*2;
         // thread pool for partitions
         this.threadPool = Executors.newFixedThreadPool(numThreads);
         // thread pool for misc tasks
@@ -66,7 +66,8 @@ public class ParallelHashJoinOptimized extends HashJoinOptimized {
                                            String joinPropertyS, JoinOn joinOnS) {
         // TODO clean code
 
-        assert numThreads <= R.size() && numThreads <= S.size();
+        if (numThreads > R.size()) numThreads = R.size();
+        if (numThreads > S.size()) numThreads = S.size();
 
         // partition R and S in parallel
         var buildRelationPartsFeature = cachedPool.submit(() -> splitRelationIntoParts(R, joinPropertyR, numThreads));

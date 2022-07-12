@@ -59,15 +59,17 @@ public class SparqlJoinApplication implements CommandLineRunner {
     public boolean simulation(Database database) {
         LOG.info("Simulation begin...");
 
+        // Only comment in one of the following join algorithms
+
         // hash join optimized
-        LOG.info("****** HASH JOIN OPTIMIZED ******");
+        /*LOG.info("****** HASH JOIN OPTIMIZED ******");
         Performance.measure(() -> hashJoinOptimized(database), "Hash Join Optimized Simulation");
-        System.gc(); // Ask for garbage collection to free memory
+        System.gc(); // Ask for garbage collection to free memory*/
 
         // parallel hash join optimized
-        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
+        /*LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
         Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
-        System.gc(); // Ask for garbage collection to free memory
+        System.gc(); // Ask for garbage collection to free memory*/
 
         // hash join
         LOG.info("****** HASH JOIN ******");
@@ -75,14 +77,14 @@ public class SparqlJoinApplication implements CommandLineRunner {
         System.gc(); // Ask for garbage collection to free memory
 
         // sort merge simulation
-        LOG.info("****** SORT-MERGE JOIN ******");
+        /*LOG.info("****** SORT-MERGE JOIN ******");
         Performance.measure(() -> sortMergeJoin(database), "Sort-Merge Join Simulation");
-        System.gc(); // Ask for garbage collection to free memory
+        System.gc(); // Ask for garbage collection to free memory*/
 
         // parallel hash join
-        LOG.info("****** PARALLEL JOIN ******");
+        /*LOG.info("****** PARALLEL JOIN ******");
         Performance.measure(() -> parallelHashJoin(database), "Parallel Hash Join Simulation");
-        System.gc(); // Ask for garbage collection to free memory
+        System.gc(); // Ask for garbage collection to free memory*/
 
         return true;
     }

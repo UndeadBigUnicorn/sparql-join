@@ -69,44 +69,34 @@ public interface AbstractJoin {
     /**
      * Merge 2 tuples into a single with all properties. Merge the dictionaries.
      *
-     * @param joinedItems              Output relation where the new tuple should be added
-     * @param outputObjectDictionary   Dictionary of the output relation. Entries from the R relation must have been added before.
-     * @param outputPropertyDictionary Dictionary containing the properties. Entries from the R relation must have been added before.
-     * @param joinedItemsR             Items from R relation
-     * @param joinedItemsS             Items from S relation
-     * @param dictionaryS              S table dictionary
+     * @param joinedItemsR      Items from R relation
+     * @param joinedItemsS      Items from S relation
+     * @param objectDictionaryR R table dictionary
+     * @param objectDictionaryS S table dictionary
      */
-    default void mergeTuplesAndDictionaries(List<JoinedItems> joinedItems, Dictionary outputPropertyDictionary, Dictionary propertyDictionaryS, Dictionary outputObjectDictionary, JoinedItems joinedItemsR, JoinedItems joinedItemsS, Dictionary dictionaryS) {
-        // clone reference item values to avoid overwriting values by reference
-        @SuppressWarnings("unchecked") HashMap<Integer, Item> outputValues = (HashMap<Integer, Item>) joinedItemsR.values().clone();
-
+    default void mergeTuplesAndDictionaries(JoinedItems joinedItemsR, JoinedItems joinedItemsS, Dictionary objectDictionaryR, Dictionary objectDictionaryS, Dictionary propertyDictionaryR, Dictionary propertyDictionaryS) {
         // add new property values
-        joinedItemsS.values().forEach((propertyIntS, propertyItem) -> {
+        joinedItemsS.values().forEach((propertyIntS, propertyItemS) -> {
             String property = propertyDictionaryS.getValues().get(propertyIntS);
-            Integer outputPropertyInt = outputPropertyDictionary.getInvertedValues().get(property);
-            if (outputPropertyInt == null) {
-                outputPropertyInt = outputPropertyDictionary.put(property);
-            }
+            Integer propertyIntR = propertyDictionaryR.put(property);
 
-            if (propertyItem.type().equals(DataType.STRING)) {
+            if (propertyItemS.type().equals(DataType.STRING)) {
                 // object was a string -> put value into new dictionary, update item value index
-                // TODO write a test for this
 
-                int propertyItemObjectIntRepresentation = outputObjectDictionary.put(dictionaryS.get(propertyItem.object()));
-                outputValues.put(outputPropertyInt, new Item(
-                        propertyItem.subject(),
+                int propertyItemObjectIntRepresentation = objectDictionaryR.put(objectDictionaryS.get(propertyItemS.object()));
+                joinedItemsR.values().put(propertyIntR, new Item(
+                        propertyItemS.subject(),
                         propertyItemObjectIntRepresentation,
-                        propertyItem.type()
+                        propertyItemS.type()
                 ));
             } else {
                 // else put as it is
-                outputValues.put(outputPropertyInt, new Item(
-                        propertyItem.subject(),
-                        propertyItem.object(),
-                        propertyItem.type())
+                joinedItemsR.values().put(propertyIntR, new Item(
+                        propertyItemS.subject(),
+                        propertyItemS.object(),
+                        propertyItemS.type())
                 );
             }
         });
-        joinedItems.add(new JoinedItems(joinedItemsR.subject(), outputValues));
     }
 }

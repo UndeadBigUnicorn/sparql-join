@@ -40,15 +40,15 @@ public class JoinServiceTest {
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin1Table.insert(new JoinedItems(0, joinedValue1, true));
         HashMap<Integer, Item> joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin1Table.insert(new JoinedItems(2, joinedValue2, true));
         HashMap<Integer, Item> joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(24, 15125125, DataType.INTEGER));
         joinedValue3.put(2, new Item(24, 3, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(24, joinedValue3));
+        expectedJoin1Table.insert(new JoinedItems(24, joinedValue3, true));
 
         ComplexTable actualJoin1Table = joinService.hashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -80,17 +80,17 @@ public class JoinServiceTest {
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin2Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
         joinedValue2.put(3, new Item(2, 5, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin2Table.insert(new JoinedItems(2, joinedValue2, true));
         joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(24, 15125125, DataType.INTEGER));
         joinedValue3.put(2, new Item(24, 3, DataType.STRING));
         joinedValue3.put(3, new Item(24, 6, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(24, joinedValue3));
+        expectedJoin2Table.insert(new JoinedItems(24, joinedValue3, true));
 
         ComplexTable actualJoin2Table = joinService.hashJoin(
                 actualJoin1Table,
@@ -118,19 +118,19 @@ public class JoinServiceTest {
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin3Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue2.put(2, new Item(0, 1, DataType.STRING));
         joinedValue2.put(3, new Item(0, 4, DataType.STRING));
         joinedValue2.put(4, new Item(0, 27, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(0, joinedValue2));
+        expectedJoin3Table.insert(new JoinedItems(0, joinedValue2, true));
         joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue3.put(2, new Item(2, 2, DataType.STRING));
         joinedValue3.put(3, new Item(2, 5, DataType.STRING));
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(2, joinedValue3));
+        expectedJoin3Table.insert(new JoinedItems(2, joinedValue3, true));
 
         // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
         expectedJoin3Table.getObjectDictionary().getValues().remove(3);
@@ -166,14 +166,14 @@ public class JoinServiceTest {
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
         joinedValue1.put(5, new Item(24, 25, DataType.OBJECT));
-        expectedJoin4Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin4Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
         joinedValue2.put(3, new Item(2, 5, DataType.STRING));
         joinedValue2.put(4, new Item(2, 24, DataType.OBJECT));
         joinedValue2.put(5, new Item(24, 25, DataType.OBJECT));
-        expectedJoin4Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin4Table.insert(new JoinedItems(2, joinedValue2, true));
 
         ComplexTable actualJoin4Table = joinService.hashJoin(
                 actualJoin3Table,
@@ -213,19 +213,19 @@ public class JoinServiceTest {
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 3, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1, true));
         HashMap<Integer, Item> joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue2.put(2, new Item(0, 1, DataType.STRING));
         joinedValue2.put(3, new Item(0, 3, DataType.STRING));
         joinedValue2.put(4, new Item(0, 27, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2, true));
         HashMap<Integer, Item> joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue3.put(2, new Item(2, 2, DataType.STRING));
         joinedValue3.put(3, new Item(2, 4, DataType.STRING));
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3, true));
 
         ComplexTable userIdGivenNameTable = joinService.hashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -283,15 +283,15 @@ public class JoinServiceTest {
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin1Table.insert(new JoinedItems(0, joinedValue1, true));
         HashMap<Integer, Item> joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin1Table.insert(new JoinedItems(2, joinedValue2, true));
         HashMap<Integer, Item> joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(24, 15125125, DataType.INTEGER));
         joinedValue3.put(2, new Item(24, 3, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(24, joinedValue3));
+        expectedJoin1Table.insert(new JoinedItems(24, joinedValue3, true));
 
         ComplexTable actualJoinedUserIdGivenNameTable = joinService.parallelHashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -323,17 +323,17 @@ public class JoinServiceTest {
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin2Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
         joinedValue2.put(3, new Item(2, 5, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin2Table.insert(new JoinedItems(2, joinedValue2, true));
         joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(24, 15125125, DataType.INTEGER));
         joinedValue3.put(2, new Item(24, 3, DataType.STRING));
         joinedValue3.put(3, new Item(24, 6, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(24, joinedValue3));
+        expectedJoin2Table.insert(new JoinedItems(24, joinedValue3, true));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.parallelHashJoin(
                 actualJoinedUserIdGivenNameTable,
@@ -361,19 +361,19 @@ public class JoinServiceTest {
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin3Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue2.put(2, new Item(0, 1, DataType.STRING));
         joinedValue2.put(3, new Item(0, 4, DataType.STRING));
         joinedValue2.put(4, new Item(0, 27, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(0, joinedValue2));
+        expectedJoin3Table.insert(new JoinedItems(0, joinedValue2, true));
         joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue3.put(2, new Item(2, 2, DataType.STRING));
         joinedValue3.put(3, new Item(2, 5, DataType.STRING));
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(2, joinedValue3));
+        expectedJoin3Table.insert(new JoinedItems(2, joinedValue3, true));
 
         // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
         expectedJoin3Table.getObjectDictionary().getValues().remove(3);
@@ -409,14 +409,14 @@ public class JoinServiceTest {
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
         joinedValue1.put(5, new Item(24, 25, DataType.OBJECT));
-        expectedJoin4Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin4Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
         joinedValue2.put(3, new Item(2, 5, DataType.STRING));
         joinedValue2.put(4, new Item(2, 24, DataType.OBJECT));
         joinedValue2.put(5, new Item(24, 25, DataType.OBJECT));
-        expectedJoin4Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin4Table.insert(new JoinedItems(2, joinedValue2, true));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.parallelHashJoin(
                 actualJoinedUserIdGivenNameFamilyNameFollowsTable,
@@ -456,19 +456,19 @@ public class JoinServiceTest {
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 3, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1, true));
         HashMap<Integer, Item> joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue2.put(2, new Item(0, 1, DataType.STRING));
         joinedValue2.put(3, new Item(0, 3, DataType.STRING));
         joinedValue2.put(4, new Item(0, 27, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2, true));
         HashMap<Integer, Item> joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue3.put(2, new Item(2, 2, DataType.STRING));
         joinedValue3.put(3, new Item(2, 4, DataType.STRING));
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3, true));
 
         ComplexTable userIdGivenNameTable = joinService.parallelHashJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -526,15 +526,15 @@ public class JoinServiceTest {
         HashMap<Integer, Item> joinedValue1 = new HashMap<>();
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin1Table.insert(new JoinedItems(0, joinedValue1, true));
         HashMap<Integer, Item> joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin1Table.insert(new JoinedItems(2, joinedValue2, true));
         HashMap<Integer, Item> joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(24, 15125125, DataType.INTEGER));
         joinedValue3.put(2, new Item(24, 3, DataType.STRING));
-        expectedJoin1Table.insert(new JoinedItems(24, joinedValue3));
+        expectedJoin1Table.insert(new JoinedItems(24, joinedValue3, true));
 
         ComplexTable actualJoinedUserIdGivenNameTable = joinService.sortMergeJoin(
                 database.tables().get("wsdbm:userId").toComplex(),
@@ -566,17 +566,17 @@ public class JoinServiceTest {
         joinedValue1.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin2Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
         joinedValue2.put(3, new Item(2, 5, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin2Table.insert(new JoinedItems(2, joinedValue2, true));
         joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(24, 15125125, DataType.INTEGER));
         joinedValue3.put(2, new Item(24, 3, DataType.STRING));
         joinedValue3.put(3, new Item(24, 6, DataType.STRING));
-        expectedJoin2Table.insert(new JoinedItems(24, joinedValue3));
+        expectedJoin2Table.insert(new JoinedItems(24, joinedValue3, true));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameTable = joinService.sortMergeJoin(
                 actualJoinedUserIdGivenNameTable,
@@ -604,19 +604,19 @@ public class JoinServiceTest {
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin3Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue2.put(2, new Item(0, 1, DataType.STRING));
         joinedValue2.put(3, new Item(0, 4, DataType.STRING));
         joinedValue2.put(4, new Item(0, 27, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(0, joinedValue2));
+        expectedJoin3Table.insert(new JoinedItems(0, joinedValue2, true));
         joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue3.put(2, new Item(2, 2, DataType.STRING));
         joinedValue3.put(3, new Item(2, 5, DataType.STRING));
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
-        expectedJoin3Table.insert(new JoinedItems(2, joinedValue3));
+        expectedJoin3Table.insert(new JoinedItems(2, joinedValue3, true));
 
         // subject 24 does not follow anyone, so remove givenName LEA and familyName ORGANA from the expected result dict
         expectedJoin3Table.getObjectDictionary().getValues().remove(3);
@@ -652,14 +652,14 @@ public class JoinServiceTest {
         joinedValue1.put(3, new Item(0, 4, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
         joinedValue1.put(5, new Item(24, 25, DataType.OBJECT));
-        expectedJoin4Table.insert(new JoinedItems(0, joinedValue1));
+        expectedJoin4Table.insert(new JoinedItems(0, joinedValue1, true));
         joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue2.put(2, new Item(2, 2, DataType.STRING));
         joinedValue2.put(3, new Item(2, 5, DataType.STRING));
         joinedValue2.put(4, new Item(2, 24, DataType.OBJECT));
         joinedValue2.put(5, new Item(24, 25, DataType.OBJECT));
-        expectedJoin4Table.insert(new JoinedItems(2, joinedValue2));
+        expectedJoin4Table.insert(new JoinedItems(2, joinedValue2, true));
 
         ComplexTable actualJoinedUserIdGivenNameFamilyNameFollowsLikesTable = joinService.sortMergeJoin(
                 actualJoinedUserIdGivenNameFamilyNameFollowsTable,
@@ -699,19 +699,19 @@ public class JoinServiceTest {
         joinedValue1.put(2, new Item(0, 1, DataType.STRING));
         joinedValue1.put(3, new Item(0, 3, DataType.STRING));
         joinedValue1.put(4, new Item(0, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue1, true));
         HashMap<Integer, Item> joinedValue2 = new HashMap<>();
         joinedValue2.put(1, new Item(0, 1806723, DataType.INTEGER));
         joinedValue2.put(2, new Item(0, 1, DataType.STRING));
         joinedValue2.put(3, new Item(0, 3, DataType.STRING));
         joinedValue2.put(4, new Item(0, 27, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(0, joinedValue2, true));
         HashMap<Integer, Item> joinedValue3 = new HashMap<>();
         joinedValue3.put(1, new Item(2, 1936247, DataType.INTEGER));
         joinedValue3.put(2, new Item(2, 2, DataType.STRING));
         joinedValue3.put(3, new Item(2, 4, DataType.STRING));
         joinedValue3.put(4, new Item(2, 24, DataType.OBJECT));
-        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3));
+        expectedJoinedUserIdGivenNameFamilyNameFollowsTable.insert(new JoinedItems(2, joinedValue3, true));
 
         ComplexTable userIdGivenNameTable = joinService.sortMergeJoin(
                 database.tables().get("wsdbm:userId").toComplex(),

@@ -72,7 +72,7 @@ public class SimpleTable {
         List<JoinedItems> values = list().stream().map((item) -> {
             HashMap<Integer, Item> itemMap = new HashMap<>();
             itemMap.put(propertyInteger, item);
-            return new JoinedItems(item.subject(), itemMap);
+            return new JoinedItems(item.subject(), itemMap, false);
         }).collect(Collectors.toList());
         return new ComplexTable(propertyDictionary, getObjectDictionary(), new PropertyValues<>(values));
     }

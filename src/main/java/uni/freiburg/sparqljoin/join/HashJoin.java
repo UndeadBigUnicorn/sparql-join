@@ -88,13 +88,9 @@ public class HashJoin implements AbstractJoin {
         HashMap<Integer, List<JoinedItems>> hashedReferenceTablePartitions = ((HashJoinBuildOutput) partitions).getPartition();
 
         Dictionary referenceTableDictionary = R.getObjectDictionary();
+        Dictionary referenceTablePropertyDictionary = S.getPropertyDictionary();
         Dictionary probeTableDictionary = S.getObjectDictionary();
         Dictionary probeTablePropertyDictionary = S.getPropertyDictionary();
-
-        // Output variables
-        Dictionary outputObjectDictionary = referenceTableDictionary.clone();
-        Dictionary outputPropertyDictionary = R.getPropertyDictionary().clone();
-        List<JoinedItems> joinedItems = new ArrayList<>();
 
         AtomicInteger numProcessedRecords = new AtomicInteger(0);
         int numRecords = S.getValues().size();
@@ -103,7 +99,7 @@ public class HashJoin implements AbstractJoin {
         // For each tuple in S...
         S.getValues().forEach(probeJoinedItems -> {
             if (numProcessedRecords.incrementAndGet() % 10000 == 0 && !printedProgress.get()) {
-                System.out.println("Iterate over S tuples. " + numProcessedRecords + "/" + numRecords + " records = " + (int)(100f * numProcessedRecords.get() / numRecords) + "%");
+                System.out.println("Iterate over S tuples. " + numProcessedRecords + "/" + numRecords + " records = " + (int) (100f * numProcessedRecords.get() / numRecords) + "%");
                 printedProgress.set(true);
             } else {
                 printedProgress.set(false);
@@ -118,12 +114,15 @@ public class HashJoin implements AbstractJoin {
 
             // ... look up its join key in the hash table of R
             if (hashedReferenceTablePartitions.containsKey(hashedSKey)) {
-                for (JoinedItems referenceJoinedItems : hashedReferenceTablePartitions.get(hashedSKey)) {
+                List<JoinedItems> partition = hashedReferenceTablePartitions.get(hashedSKey);
+                for (int partitionIndex = 0; partitionIndex < partition.size(); partitionIndex++) {
+                    JoinedItems referenceJoinedItems = partition.get(partitionIndex);
+
                     if (!referenceJoinedItems.values().containsKey(joinPropertyR)) {
-                        return; // Discard this S tuple
+                        continue; // Discard this S tuple
                     }
                     if (!probeJoinedItems.values().containsKey(joinPropertyS)) {
-                        return; // Discard this S tuple
+                        continue; // Discard this S tuple
                     }
 
                     // A match is found. Output the combined tuple.
@@ -137,13 +136,16 @@ public class HashJoin implements AbstractJoin {
                     int probeJoinKey = joinOnS == JoinOn.SUBJECT ? probeItem.subject() : probeItem.object();
                     if (referenceJoinKey == probeJoinKey) {
                         // No hash collision
-                        mergeTuplesAndDictionaries(joinedItems, outputPropertyDictionary, probeTablePropertyDictionary, outputObjectDictionary, referenceJoinedItems, probeJoinedItems, probeTableDictionary);
+                        mergeTuplesAndDictionaries(referenceJoinedItems, probeJoinedItems, referenceTableDictionary, probeTableDictionary, referenceTablePropertyDictionary, probeTablePropertyDictionary);
+                        partition.set(partitionIndex, referenceJoinedItems.withIsPartOfJoinOutput(true));
                     }
                 }
             }
         });
 
-        return new ComplexTable(outputPropertyDictionary, outputObjectDictionary, new PropertyValues<>(joinedItems));
+        // TODO remove unvisited R items
+
+        return R;
     }
 
 }

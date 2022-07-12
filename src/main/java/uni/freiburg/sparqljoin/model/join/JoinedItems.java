@@ -7,10 +7,15 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 /**
- * @param subject RDF subject
- * @param values  HashMap with (key = RDF property, value = (RDF subject (the same as above), RDF object))
+ * @param subject            RDF subject
+ * @param values             HashMap with (key = RDF property, value = (RDF subject (the same as above), RDF object))
+ * @param isPartOfJoinOutput True if this record is a part of the join output, false otherwise
  */
-public record JoinedItems(int subject, HashMap<Integer, Item> values) {
+public record JoinedItems(int subject, HashMap<Integer, Item> values, Boolean isPartOfJoinOutput) {
+    public JoinedItems withIsPartOfJoinOutput(boolean isPartOfJoinOutput) {
+        return new JoinedItems(this.subject, this.values, isPartOfJoinOutput);
+    }
+
     @Override
     public boolean equals(Object obj) {
         assert obj instanceof JoinedItems;
@@ -30,7 +35,7 @@ public record JoinedItems(int subject, HashMap<Integer, Item> values) {
 
     public JoinedItems clone() {
         //noinspection unchecked
-        return new JoinedItems(this.subject, (HashMap<Integer, Item>) this.values.clone());
+        return new JoinedItems(this.subject, (HashMap<Integer, Item>) this.values.clone(), this.isPartOfJoinOutput);
     }
 
     public static class JoinedItemsComparator implements Comparator<JoinedItems> {
