@@ -41,6 +41,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         Performance.measure(this::perform, "Overall Run");
         LOG.info("SPARQL finished successfully");
+        System.exit(0);
     }
 
     public boolean perform() {
@@ -61,21 +62,26 @@ public class SparqlJoinApplication implements CommandLineRunner {
         // hash join optimized
         LOG.info("****** HASH JOIN OPTIMIZED ******");
         Performance.measure(() -> hashJoinOptimized(database), "Hash Join Optimized Simulation");
+        System.gc(); // Ask for garbage collection to free memory
 
         LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
         Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
+        System.gc(); // Ask for garbage collection to free memory
 
         // hash join
         LOG.info("****** HASH JOIN ******");
         Performance.measure(() -> hashJoin(database), "Hash Join Simulation");
+        System.gc(); // Ask for garbage collection to free memory
 
         // sort merge simulation
         LOG.info("****** SORT-MERGE JOIN ******");
         Performance.measure(() -> sortMergeJoin(database), "Sort-Merge Join Simulation");
+        System.gc(); // Ask for garbage collection to free memory
 
         // parallel hash join
         LOG.info("****** PARALLEL JOIN ******");
         Performance.measure(() -> parallelHashJoin(database), "Parallel Hash Join Simulation");
+        System.gc(); // Ask for garbage collection to free memory
 
         return true;
     }
@@ -103,10 +109,10 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 "wsdbm:friendOf",
                 JoinOn.SUBJECT);
         LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
-        return joinedTable;
+        return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
-    public VerticallyPartitionedTable hashJoinOptimized(Database database) {
+    public ComplexTable hashJoinOptimized(Database database) {
         VerticallyPartitionedTable likesHasReviewTable = joinService.hashJoin(
                 database.tables().get("wsdbm:likes").toVerticallyPartitioned(),
                 database.tables().get("rev:hasReview").toVerticallyPartitioned(),
@@ -129,7 +135,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 "wsdbm:friendOf",
                 JoinOn.SUBJECT);
         LOG.info("Hash joined table size: {}", joinedTable.propertyItems().get("wsdbm:likes").getValues().size());
-        return joinedTable;
+        return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
     public ComplexTable parallelHashJoin(Database database) {
@@ -155,7 +161,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 "wsdbm:friendOf",
                 JoinOn.SUBJECT);
         LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
-        return joinedTable;
+        return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
     public VerticallyPartitionedTable parallelHashJoinOptimized(Database database) {
@@ -181,7 +187,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 "wsdbm:friendOf",
                 JoinOn.SUBJECT);
         LOG.info("Hash joined table size: {}", joinedTable.size());
-        return joinedTable;
+        return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
     public ComplexTable sortMergeJoin(Database database) {
@@ -207,6 +213,6 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 "wsdbm:friendOf",
                 JoinOn.SUBJECT);
         LOG.info("Sort-Merge joined table size: {}", joinedTable.getValues().size());
-        return joinedTable;
+        return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 }
