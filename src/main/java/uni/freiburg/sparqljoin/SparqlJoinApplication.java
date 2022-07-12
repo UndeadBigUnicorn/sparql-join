@@ -59,13 +59,14 @@ public class SparqlJoinApplication implements CommandLineRunner {
     public boolean simulation(Database database) {
         LOG.info("Simulation begin...");
 
+        // parallel hash join optimized
+        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
+        Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
+        System.gc(); // Ask for garbage collection to free memory
+
         // hash join optimized
         LOG.info("****** HASH JOIN OPTIMIZED ******");
         Performance.measure(() -> hashJoinOptimized(database), "Hash Join Optimized Simulation");
-        System.gc(); // Ask for garbage collection to free memory
-
-        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
-        Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
         System.gc(); // Ask for garbage collection to free memory
 
         // hash join
@@ -146,6 +147,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
+        System.gc();
         ComplexTable likesHasReviewFollowsTable = joinService.parallelHashJoin(
                 likesHasReviewTable,
                 database.tables().get("wsdbm:follows").toComplex(),
@@ -153,6 +155,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "wsdbm:follows",
                 JoinOn.SUBJECT);
+        System.gc();
         ComplexTable joinedTable = joinService.parallelHashJoin(
                 likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toComplex(),
@@ -172,6 +175,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
+        System.gc();
         VerticallyPartitionedTable likesHasReviewFollowsTable = joinService.parallelHashJoin(
                 likesHasReviewTable,
                 database.tables().get("wsdbm:follows").toVerticallyPartitioned(),
@@ -179,6 +183,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "wsdbm:follows",
                 JoinOn.SUBJECT);
+        System.gc();
         VerticallyPartitionedTable joinedTable = joinService.parallelHashJoin(
                 likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toVerticallyPartitioned(),
