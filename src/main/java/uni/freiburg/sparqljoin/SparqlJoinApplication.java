@@ -112,7 +112,7 @@ public class SparqlJoinApplication implements CommandLineRunner {
         return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
-    public ComplexTable hashJoinOptimized(Database database) {
+    public VerticallyPartitionedTable hashJoinOptimized(Database database) {
         VerticallyPartitionedTable likesHasReviewTable = joinService.hashJoin(
                 database.tables().get("wsdbm:likes").toVerticallyPartitioned(),
                 database.tables().get("rev:hasReview").toVerticallyPartitioned(),
