@@ -58,13 +58,16 @@ public class SparqlJoinApplication implements CommandLineRunner {
     public boolean simulation(Database database) {
         LOG.info("Simulation begin...");
 
-        // hash join
-        LOG.info("****** HASH JOIN ******");
-        Performance.measure(() -> hashJoin(database), "Hash Join Simulation");
-
         // hash join optimized
         LOG.info("****** HASH JOIN OPTIMIZED ******");
         Performance.measure(() -> hashJoinOptimized(database), "Hash Join Optimized Simulation");
+
+        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
+        Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
+
+        // hash join
+        LOG.info("****** HASH JOIN ******");
+        Performance.measure(() -> hashJoin(database), "Hash Join Simulation");
 
         // sort merge simulation
         LOG.info("****** SORT-MERGE JOIN ******");
@@ -73,9 +76,6 @@ public class SparqlJoinApplication implements CommandLineRunner {
         // parallel hash join
         LOG.info("****** PARALLEL JOIN ******");
         Performance.measure(() -> parallelHashJoin(database), "Parallel Hash Join Simulation");
-
-        LOG.info("****** PARALLEL JOIN OPTIMIZED ******");
-        Performance.measure(() -> parallelHashJoinOptimized(database), "Parallel Hash Join Optimized Simulation");
 
         return true;
     }
