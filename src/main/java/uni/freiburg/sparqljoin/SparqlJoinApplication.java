@@ -95,20 +95,20 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
-        ComplexTable likesHasReviewFollowsTable = joinService.hashJoin(
+        ComplexTable likesHasReviewFriendOfTable = joinService.hashJoin(
                 likesHasReviewTable,
-                database.tables().get("wsdbm:follows").toComplex(),
-                "wsdbm:likes",
-                JoinOn.OBJECT,
-                "wsdbm:follows",
-                JoinOn.SUBJECT);
-        ComplexTable joinedTable = joinService.hashJoin(
-                likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toComplex(),
-                "wsdbm:follows",
-                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT,
                 "wsdbm:friendOf",
-                JoinOn.SUBJECT);
+                JoinOn.OBJECT);
+        ComplexTable joinedTable = joinService.hashJoin(
+                likesHasReviewFriendOfTable,
+                database.tables().get("wsdbm:follows").toComplex(),
+                "wsdbm:friendOf",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.OBJECT);
         LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
         return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
@@ -121,21 +121,21 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
-        VerticallyPartitionedTable likesHasReviewFollowsTable = joinService.hashJoin(
+        VerticallyPartitionedTable likesHasReviewFriendOfTable = joinService.hashJoin(
                 likesHasReviewTable,
-                database.tables().get("wsdbm:follows").toVerticallyPartitioned(),
-                "wsdbm:likes",
-                JoinOn.OBJECT,
-                "wsdbm:follows",
-                JoinOn.SUBJECT);
-        VerticallyPartitionedTable joinedTable = joinService.hashJoin(
-                likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toVerticallyPartitioned(),
-                "wsdbm:follows",
-                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT,
                 "wsdbm:friendOf",
-                JoinOn.SUBJECT);
-        LOG.info("Hash joined table size: {}", joinedTable.propertyItems().get("wsdbm:likes").getValues().size());
+                JoinOn.OBJECT);
+        VerticallyPartitionedTable joinedTable = joinService.hashJoin(
+                likesHasReviewFriendOfTable,
+                database.tables().get("wsdbm:follows").toVerticallyPartitioned(),
+                "wsdbm:friendOf",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.OBJECT);
+        LOG.info("Hash joined table size: {}", joinedTable.size());
         return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
@@ -147,23 +147,21 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
-        System.gc();
-        ComplexTable likesHasReviewFollowsTable = joinService.parallelHashJoin(
+        ComplexTable likesHasReviewFriendOfTable = joinService.parallelHashJoin(
                 likesHasReviewTable,
-                database.tables().get("wsdbm:follows").toComplex(),
-                "wsdbm:likes",
-                JoinOn.OBJECT,
-                "wsdbm:follows",
-                JoinOn.SUBJECT);
-        System.gc();
-        ComplexTable joinedTable = joinService.parallelHashJoin(
-                likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toComplex(),
-                "wsdbm:follows",
-                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT,
                 "wsdbm:friendOf",
-                JoinOn.SUBJECT);
-        LOG.info("Hash joined table size: {}", joinedTable.getValues().size());
+                JoinOn.OBJECT);
+        ComplexTable joinedTable = joinService.parallelHashJoin(
+                likesHasReviewFriendOfTable,
+                database.tables().get("wsdbm:follows").toComplex(),
+                "wsdbm:friendOf",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.OBJECT);
+        LOG.info("Parallel Hash joined table size: {}", joinedTable.getValues().size());
         return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
@@ -175,23 +173,21 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
-        System.gc();
-        VerticallyPartitionedTable likesHasReviewFollowsTable = joinService.parallelHashJoin(
+        VerticallyPartitionedTable likesHasReviewFriendOfTable = joinService.parallelHashJoin(
                 likesHasReviewTable,
-                database.tables().get("wsdbm:follows").toVerticallyPartitioned(),
-                "wsdbm:likes",
-                JoinOn.OBJECT,
-                "wsdbm:follows",
-                JoinOn.SUBJECT);
-        System.gc();
-        VerticallyPartitionedTable joinedTable = joinService.parallelHashJoin(
-                likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toVerticallyPartitioned(),
-                "wsdbm:follows",
-                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT,
                 "wsdbm:friendOf",
-                JoinOn.SUBJECT);
-        LOG.info("Hash joined table size: {}", joinedTable.size());
+                JoinOn.OBJECT);
+        VerticallyPartitionedTable joinedTable = joinService.parallelHashJoin(
+                likesHasReviewFriendOfTable,
+                database.tables().get("wsdbm:follows").toVerticallyPartitioned(),
+                "wsdbm:friendOf",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.OBJECT);
+        LOG.info("Parallel Hash joined table size: {}", joinedTable.size());
         return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }
 
@@ -203,20 +199,20 @@ public class SparqlJoinApplication implements CommandLineRunner {
                 JoinOn.OBJECT,
                 "rev:hasReview",
                 JoinOn.SUBJECT);
-        ComplexTable likesHasReviewFollowsTable = joinService.sortMergeJoin(
+        ComplexTable likesHasReviewFriendOfTable = joinService.sortMergeJoin(
                 likesHasReviewTable,
-                database.tables().get("wsdbm:follows").toComplex(),
-                "wsdbm:likes",
-                JoinOn.OBJECT,
-                "wsdbm:follows",
-                JoinOn.SUBJECT);
-        ComplexTable joinedTable = joinService.sortMergeJoin(
-                likesHasReviewFollowsTable,
                 database.tables().get("wsdbm:friendOf").toComplex(),
-                "wsdbm:follows",
-                JoinOn.OBJECT,
+                "wsdbm:likes",
+                JoinOn.SUBJECT,
                 "wsdbm:friendOf",
-                JoinOn.SUBJECT);
+                JoinOn.OBJECT);
+        ComplexTable joinedTable = joinService.sortMergeJoin(
+                likesHasReviewFriendOfTable,
+                database.tables().get("wsdbm:follows").toComplex(),
+                "wsdbm:friendOf",
+                JoinOn.SUBJECT,
+                "wsdbm:follows",
+                JoinOn.OBJECT);
         LOG.info("Sort-Merge joined table size: {}", joinedTable.getValues().size());
         return null; // Save memory. If you are interested in the join result, use: return joinedTable;
     }

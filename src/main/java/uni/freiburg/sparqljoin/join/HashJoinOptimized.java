@@ -102,7 +102,7 @@ public class HashJoinOptimized implements AbstractJoinOptimized {
         // For each tuple in S...
         for (int probeItemIndex = 0; probeItemIndex < numRecords; probeItemIndex++) {
             if (numProcessedRecords.incrementAndGet() % 10000 == 0 && !printedProgress.get()) {
-                System.out.println("Iterate over S tuples. " + numProcessedRecords + "/" + numRecords + " records = " + (int)(100f * numProcessedRecords.get() / numRecords) + "%");
+                System.out.println("Iterate over S tuples. Joined results size = " + joinedItems.get(joinPropertyR).getValues().size() + " " + numProcessedRecords + "/" + numRecords + " records = " + (int)(100f * numProcessedRecords.get() / numRecords) + "%");
                 printedProgress.set(true);
             } else {
                 printedProgress.set(false);
